@@ -5,10 +5,14 @@ const currentTheme = localStorage.getItem("theme");
 
 function getPreferTheme() {
   // return theme value in local storage if it is set
-  if (currentTheme) return currentTheme;
+  if (currentTheme === "light" || currentTheme === "dark") {
+    return currentTheme;
+  }
 
   // return primary color scheme if it is set
-  if (primaryColorScheme) return primaryColorScheme;
+  if (primaryColorScheme === "light" || primaryColorScheme === "dark") {
+    return primaryColorScheme;
+  }
 
   // return user device's prefer color scheme
   return window.matchMedia("(prefers-color-scheme: dark)").matches
