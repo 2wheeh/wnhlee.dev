@@ -1,7 +1,8 @@
 import type { Site, SocialObjects } from "./types";
+import type { GiscusProps } from "@giscus/react";
 
 export const SITE: Site = {
-  website: "https://astro-paper.pages.dev/", // replace this with your deployed domain
+  website: "https://wnhlee.dev/", // replace this with your deployed domain
   author: "Wonhee Lee",
   desc: "A minimal, responsive and SEO-friendly Astro blog theme.",
   title: "wnhlee.dev",
@@ -43,3 +44,18 @@ export const SOCIALS: SocialObjects = [
     active: false,
   },
 ];
+
+export const GISCUS: GiscusProps = {
+  id: "comments",
+  repo: "2wheeh/wnhlee.dev",
+  repoId: "R_kgDOL6i5NA",
+  category: "Comments",
+  categoryId: "DIC_kwDOL6i5NM4CfTyc",
+  mapping: "pathname",
+  reactionsEnabled: "1",
+  emitMetadata: "0",
+  inputPosition: "bottom",
+  lang: "en", // "ko" for Korean is also available
+  loading: "lazy",
+  strict: "1",
+};
