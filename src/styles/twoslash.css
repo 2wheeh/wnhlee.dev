@@ -53,6 +53,14 @@ Code blocks structurally look like:
 pre.shiki {
   overflow-x: auto;
 }
+
+@media screen and (max-width: 640px) {
+  pre.shiki {
+    margin: 1.25rem -1rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
 pre.shiki:hover .dim {
   opacity: 1;
 }
