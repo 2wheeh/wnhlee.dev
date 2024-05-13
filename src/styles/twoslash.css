@@ -14,7 +14,7 @@ html[data-theme="dark"] pre.shiki {
 
 .shiki.light-plus,
 html[data-theme="dark"] .shiki.dark-plus {
-  display: block;
+  display: flex;
 }
 
 .shiki.dark-plus,
@@ -24,7 +24,7 @@ html[data-theme="dark"] .shiki.light-plus {
 
 .tag-container:has(div > .light-plus),
 html[data-theme="dark"] .tag-container:has(div > .dark-plus) {
-  display: block;
+  display: flex;
 }
 
 .tag-container:has(div > .dark-plus),
@@ -53,6 +53,14 @@ Code blocks structurally look like:
 pre.shiki {
   overflow-x: auto;
 }
+
+@media screen and (max-width: 640px) {
+  pre.shiki {
+    margin: 1.25rem -1rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
 pre.shiki:hover .dim {
   opacity: 1;
 }
@@ -181,12 +189,12 @@ pre .query {
   /* This sections keeps both of those two in in sync  */
 pre .error,
 pre .error-behind {
-  margin-left: -14px;
+  margin-left: -16px;
   margin-top: 8px;
   margin-bottom: 4px;
   padding: 6px;
   padding-left: 14px;
-  width: calc(100% - 6px);
+  width: calc(100% - 2px);
   white-space: pre-wrap;
   display: block;
 }
@@ -290,6 +298,9 @@ data-lsp {
 /** Annotations support, providing a tool for meta commentary */
 .tag-container {
   position: relative;
+}
+.tag-container div {
+  flex-grow: 1;
 }
 .tag-container .twoslash-annotation {
   position: absolute;
