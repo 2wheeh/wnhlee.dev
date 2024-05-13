@@ -1,3 +1,17 @@
+html[data-theme="light"] pre.shiki {
+  --popover-background: #eee;
+  --dropdown-background: #f1f1f1;
+  --highlight-background: #f1f8ff;
+  --color-border: #719af4;
+}
+
+html[data-theme="dark"] pre.shiki {
+  --popover-background: #333;
+  --dropdown-background: #444;
+  --highlight-background: #ffffff1a;
+  --color-border: rgba(var(--color-fill));
+}
+
 .shiki.light-plus,
 html[data-theme="dark"] .shiki.dark-plus {
   display: block;
@@ -8,17 +22,32 @@ html[data-theme="dark"] .shiki.light-plus {
   display: none;
 }
 
+.tag-container:has(div > .light-plus),
+html[data-theme="dark"] .tag-container:has(div > .dark-plus) {
+  display: block;
+}
+
+.tag-container:has(div > .dark-plus),
+html[data-theme="dark"] .tag-container:has(div > .light-plus) {
+  display: none;
+}
+
 /*  Start of Shiki Twoslash CSS:
 
 Code blocks structurally look like: 
 
-<pre class='shiki lsp twoslash [theme-name]'>
-  <div class='language-id'>[lang-id]</div>
-    <div class='code-container'>
-      <code>[the code as a series of spans]</code>
-      <a href='playground...'>Try</a> (optional)
-    </div>
-  </pre> 
+<div class='tag-container'>
+  <div>
+    <pre class='shiki lsp twoslash [theme-name]'> 
+      <div class='language-id'>[lang-id]</div>
+        <div class='code-container'>
+          <code>[the code as a series of spans]</code>
+          <a href='playground...'>Try</a> (optional)
+        </div>
+      </pre>
+  </div> 
+  <div class='twoslash-annotation' />
+</div>
 */
 
 pre.shiki {
@@ -36,8 +65,13 @@ pre.shiki div.highlight {
   padding: 0;
 }
 pre.shiki div.highlight {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
   opacity: 1;
-  background-color: #f1f8ff;
+  background-color: var(--highlight-background);
 }
 pre.shiki div.line {
   min-height: 1rem;
@@ -49,8 +83,9 @@ pre.shiki .language-id {
 }
 
 /* Visually differentiates twoslash code samples  */
-pre.twoslash {
-  border-color: #719af4;
+pre.shiki {
+  border: 1px solid;
+  border-color: var(--color-border);
 }
 
 /** When you mouse over the pre, show the underlines */
@@ -82,7 +117,7 @@ pre.twoslash data-lsp:hover::before {
 }
 
 pre .code-container {
-  overflow: auto;
+  flex-grow: 1;
 }
 /* The try button */
 pre .code-container > a {
@@ -144,7 +179,6 @@ pre .query {
   /* behind the actual error message.
 
   /* This sections keeps both of those two in in sync  */
-
 pre .error,
 pre .error-behind {
   margin-left: -14px;
@@ -152,7 +186,7 @@ pre .error-behind {
   margin-bottom: 4px;
   padding: 6px;
   padding-left: 14px;
-  width: calc(100% - 20px);
+  width: calc(100% - 6px);
   white-space: pre-wrap;
   display: block;
 }
@@ -176,13 +210,13 @@ pre .error-behind {
 /* Queries */
 pre .arrow {
   /* Transparent background */
-  background-color: #eee;
+  background-color: var(--popover-background);
   position: relative;
   top: -7px;
   margin-left: 0.1rem;
   /* Edges */
-  border-left: 1px solid #eee;
-  border-top: 1px solid #eee;
+  border-left: 1px solid var(--popover-background);
+  border-top: 1px solid var(--popover-background);
   transform: translateY(25%) rotate(45deg);
   /* Size */
   height: 8px;
@@ -190,7 +224,7 @@ pre .arrow {
 }
 pre .popover {
   margin-bottom: 10px;
-  background-color: #eee;
+  background-color: var(--popover-background);
   display: inline-block;
   padding: 0 0.5rem 0.3rem;
   margin-top: 10px;
@@ -201,7 +235,7 @@ pre .inline-completions ul.dropdown {
   display: inline-block;
   position: absolute;
   width: 240px;
-  background-color: gainsboro;
+  background-color: var(--dropdown-background);
   color: grey;
   padding-top: 4px;
   font-family: var(--code-font);
@@ -212,7 +246,7 @@ pre .inline-completions ul.dropdown {
 }
 pre .inline-completions ul.dropdown::before {
   background-color: #4b9edd;
-  width: 2px;
+  width: 5px;
   position: absolute;
   top: -1.2rem;
   left: -3px;
