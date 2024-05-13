@@ -181,12 +181,12 @@ pre .query {
   /* This sections keeps both of those two in in sync  */
 pre .error,
 pre .error-behind {
-  margin-left: -14px;
+  margin-left: -16px;
   margin-top: 8px;
   margin-bottom: 4px;
   padding: 6px;
   padding-left: 14px;
-  width: calc(100% - 6px);
+  width: calc(100% - 2px);
   white-space: pre-wrap;
   display: block;
 }
