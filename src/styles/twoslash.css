@@ -14,7 +14,7 @@ html[data-theme="dark"] pre.shiki {
 
 .shiki.light-plus,
 html[data-theme="dark"] .shiki.dark-plus {
-  display: block;
+  display: flex;
 }
 
 .shiki.dark-plus,
@@ -24,7 +24,7 @@ html[data-theme="dark"] .shiki.light-plus {
 
 .tag-container:has(div > .light-plus),
 html[data-theme="dark"] .tag-container:has(div > .dark-plus) {
-  display: block;
+  display: flex;
 }
 
 .tag-container:has(div > .dark-plus),
@@ -290,6 +290,9 @@ data-lsp {
 /** Annotations support, providing a tool for meta commentary */
 .tag-container {
   position: relative;
+}
+.tag-container div {
+  flex-grow: 1;
 }
 .tag-container .twoslash-annotation {
   position: absolute;
