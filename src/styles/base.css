@@ -97,17 +97,17 @@
 
   /* width */
   ::-webkit-scrollbar {
-    @apply w-3;
+    @apply h-3 w-3;
   }
 
   /* Track */
   ::-webkit-scrollbar-track {
-    @apply bg-skin-fill;
+    @apply bg-transparent;
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    @apply bg-skin-card;
+    @apply rounded bg-skin-card;
   }
 
   /* Handle on hover */

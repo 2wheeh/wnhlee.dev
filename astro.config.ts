@@ -5,6 +5,7 @@ import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import sitemap from "@astrojs/sitemap";
 import { SITE } from "./src/config";
+import remarkTwoslash from "remark-shiki-twoslash";
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
     sitemap(),
   ],
   markdown: {
+    syntaxHighlight: false,
     remarkPlugins: [
       remarkToc,
       [
@@ -25,11 +27,14 @@ export default defineConfig({
           test: "Table of contents",
         },
       ],
+      [
+        remarkTwoslash.default,
+        {
+          themes: ["dark-plus", "light-plus"],
+          addTryButton: true,
+        },
+      ],
     ],
-    shikiConfig: {
-      theme: "one-dark-pro",
-      wrap: true,
-    },
   },
   vite: {
     optimizeDeps: {
