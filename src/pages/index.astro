@@ -13,8 +13,8 @@ import { SOCIALS } from "@config";
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const pinnedPosts = sortedPosts.filter(({ data }) => data.pinned);
+const recentPosts = sortedPosts.filter(({ data }) => !data.pinned);
 
 const socialCount = SOCIALS.filter(social => social.active).length;
 ---
@@ -68,12 +68,12 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     <Hr />
 
     {
-      featuredPosts.length > 0 && (
+      pinnedPosts.length > 0 && (
         <>
-          <section id="featured">
-            <h2>Featured</h2>
+          <section id="pinned">
+            <h2>Pinned</h2>
             <ul>
-              {featuredPosts.map(({ data, slug }) => (
+              {pinnedPosts.map(({ data, slug }) => (
                 <Card
                   href={`/posts/${slug}/`}
                   frontmatter={data}
@@ -146,12 +146,12 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
   }
 
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
+  /* ===== Pinned & Recent Posts Sections ===== */
+  #pinned,
   #recent-posts {
     @apply pb-6 pt-12;
   }
-  #featured h2,
+  #pinned h2,
   #recent-posts h2 {
     @apply text-2xl font-semibold tracking-wide;
   }
