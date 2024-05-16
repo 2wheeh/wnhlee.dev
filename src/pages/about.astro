@@ -1,0 +1,120 @@
+---
+import Hr from "@components/Hr.astro";
+import LinkButton from "@components/LinkButton.astro";
+import AccentDot from "@components/AccentDot.astro";
+import AboutLayout from "@layouts/AboutLayout.astro";
+
+const mobile = "010-9085-2379";
+const github = "github.com/2wheeh";
+---
+
+<AboutLayout>
+  <!-- introduce -->
+  <h1 class="py-4 tracking-wider sm:py-10 sm:text-5xl">
+    반갑습니다,
+    <br />저는 이원희입니다<AccentDot />
+  </h1>
+
+  <p class="my-0 text-lg sm:text-2xl">어쩌고 저쩌고 프론트엔드 개발자입니다.</p>
+  <ul>
+    <li>
+      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
+      블라블라 와라라랄우웅ㅇ류류류
+    </li>
+    <li>
+      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
+      블라블라 와라라랄우웅ㅇ류류류
+    </li>
+    <li>
+      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
+      블라블라 와라라랄우웅ㅇ류류류
+    </li>
+  </ul>
+
+  <br />
+
+  <h1>Contact<AccentDot /></h1>
+  <div class="tablest flex flex-col sm:grid sm:grid-cols-2">
+    <p>
+      <strong>Phone<AccentDot /> </strong>{mobile}
+    </p>
+    <p>
+      <strong>Email<AccentDot /> </strong>2wheeh@gmail.com
+    </p>
+    <p>
+      <strong>Github<AccentDot /> </strong><LinkButton href=`https://${github}`
+        >{github}</LinkButton
+      >
+    </p>
+    <p>
+      <strong>LinkedIn<AccentDot /> </strong><LinkButton
+        href="https://linkedin.com/in/wnhlee">in/wnhlee</LinkButton
+      >
+    </p>
+  </div>
+
+  <Hr />
+
+  <h1>Work Experience<AccentDot /></h1>
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        Pagecall<AccentDot />
+      </p>
+    </div>
+    <p>2023.06 ~ 2023.07</p>
+  </div>
+
+  <h2>관리자 콘솔 프론트엔드 개발<AccentDot /></h2>
+  <div class="tablest flex flex-col sm:grid sm:grid-cols-[1fr_4fr]">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      프로젝트 설명 어쩌고 외주개발자로 저쩌고 외주개발자로 저쩌고 외주개발자로
+      저쩌고 외주개발자로 저쩌고
+    </p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
+        저쩌고 블라블라 와라라랄우웅ㅇ류류류
+      </li>
+      <li>
+        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
+        저쩌고 블라블라 와라라랄우웅ㅇ류류류
+      </li>
+      <li>
+        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
+        저쩌고 블라블라 와라라랄우웅ㅇ류류류
+      </li>
+    </ul>
+
+    <strong>Tech Stack<AccentDot /></strong>
+    <p>
+      React, TypeScript, Next.js 13, SWR, tailwindCSS, Storybook, Yarn Berry,
+      Monorepo
+    </p>
+  </div>
+
+  <Hr />
+
+  <h1>Project<AccentDot /></h1>
+  <Hr />
+  <h1>Contribution<AccentDot /></h1>
+  <Hr />
+  <h1>Education<AccentDot /></h1>
+  <Hr />
+  <h1>Other Experience<AccentDot /></h1>
+</AboutLayout>
+
+<style>
+  .tablest > *,
+  .tablest > * > * {
+    @apply !my-1;
+  }
+
+  h2 {
+    @apply !my-0;
+  }
+</style>
