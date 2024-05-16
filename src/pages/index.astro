@@ -41,7 +41,9 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <span class="sr-only">RSS Feed</span>
       </a>
 
-      <h3>Frontend Developer</h3>
+      <div class="prose prose-h2:!mb-0 prose-h2:!text-gray-500">
+        <h2>Frontend Developer</h2>
+      </div>
       <p>
         <LinkButton
           className="underline decoration-dashed underline-offset-4 hover:text-skin-accent"
@@ -133,10 +135,6 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   }
   #hero p {
     @apply my-2;
-  }
-
-  #hero h3 {
-    @apply text-lg text-gray-500;
   }
 
   .social-wrapper {
