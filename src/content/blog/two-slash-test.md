@@ -3,7 +3,7 @@ author: wonhee
 pubDatetime: 2024-05-13T12:47:33.000+09:00
 modDatetime:
 title: two slash test
-featured: false
+pinned: false
 draft: false
 tags:
   - two slash

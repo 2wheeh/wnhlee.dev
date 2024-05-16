@@ -4,11 +4,11 @@ import type { GiscusProps } from "@giscus/react";
 export const SITE: Site = {
   website: "https://wnhlee.dev/", // replace this with your deployed domain
   author: "Wonhee Lee",
-  desc: "A minimal, responsive and SEO-friendly Astro blog theme.",
+  desc: "Personal blog by Wonhee Lee",
   title: "wnhlee.dev",
   ogImage: "astropaper-og.jpg",
   lightAndDarkMode: true,
-  postPerPage: 3,
+  postPerPage: 5,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
 };
 
@@ -31,17 +31,17 @@ export const SOCIALS: SocialObjects = [
     linkTitle: ` ${SITE.title} on Github`,
     active: true,
   },
-  // {
-  //   name: "LinkedIn",
-  //   href: "https://github.com/satnaing/astro-paper",
-  //   linkTitle: `${SITE.title} on LinkedIn`,
-  //   active: true,
-  // },
+  {
+    name: "LinkedIn",
+    href: "https://linkedin.com/in/wnhlee",
+    linkTitle: `${SITE.title} on LinkedIn`,
+    active: true,
+  },
   {
     name: "Mail",
     href: "mailto:2wheeh@gmail.com",
     linkTitle: `Send an email to ${SITE.title}`,
-    active: false,
+    active: true,
   },
 ];
 
