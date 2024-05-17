@@ -6,40 +6,42 @@ import AboutLayout from "@layouts/AboutLayout.astro";
 
 const mobile = "010-9085-2379";
 const github = "github.com/2wheeh";
+const email = "2wheeh@gmail.com";
+const linkedin = "linkedin.com/in/wnhlee";
 ---
 
 <AboutLayout>
-  <!-- introduce -->
   <h1 class="py-4 tracking-wider sm:py-10 sm:text-5xl">
     반갑습니다,
     <br />저는 이원희입니다<AccentDot />
   </h1>
 
-  <p class="my-0 text-lg sm:text-2xl">어쩌고 저쩌고 프론트엔드 개발자입니다.</p>
+  <p class="my-0 text-lg sm:text-2xl">
+    직접 만들어보고, 소통하는 프론트엔드 개발자입니다.
+  </p>
   <ul>
     <li>
-      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
-      블라블라 와라라랄우웅ㅇ류류류
+      라이브러리 내부 동작을 들여다보고, 집요하게 이슈를 트래킹하는 문제 해결
+      과정을 즐깁니다.
     </li>
+    <li>떠오르는 생각을 직접 구현해 검증해보는 것을 좋아합니다.</li>
     <li>
-      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
-      블라블라 와라라랄우웅ㅇ류류류
-    </li>
-    <li>
-      어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고 저쩌고
-      블라블라 와라라랄우웅ㅇ류류류
+      이슈나 구현한 코드를 설명하고, 함께 고민하며 성장하는 것을 소중히
+      여깁니다.
     </li>
   </ul>
 
   <br />
 
   <h1>Contact<AccentDot /></h1>
-  <div class="tablest flex flex-col sm:grid sm:grid-cols-2">
+  <div class="tablest-1-1">
     <p>
       <strong>Phone<AccentDot /> </strong>{mobile}
     </p>
     <p>
-      <strong>Email<AccentDot /> </strong>2wheeh@gmail.com
+      <strong>Email<AccentDot /> </strong><LinkButton href=`mailto${email}`
+        >{email}</LinkButton
+      >
     </p>
     <p>
       <strong>Github<AccentDot /> </strong><LinkButton href=`https://${github}`
@@ -48,7 +50,8 @@ const github = "github.com/2wheeh";
     </p>
     <p>
       <strong>LinkedIn<AccentDot /> </strong><LinkButton
-        href="https://linkedin.com/in/wnhlee">in/wnhlee</LinkButton
+        href=`https://${linkedin}`
+        >{linkedin.split("linkedin.com/").pop()}</LinkButton
       >
     </p>
   </div>
@@ -66,52 +69,325 @@ const github = "github.com/2wheeh";
     <p>2023.06 ~ 2023.07</p>
   </div>
 
-  <h2>관리자 콘솔 프론트엔드 개발<AccentDot /></h2>
-  <div class="tablest flex flex-col sm:grid sm:grid-cols-[1fr_4fr]">
+  <h2>관리자 콘솔 페이지<AccentDot /></h2>
+  <div class="tablest-1-4">
     <strong>Description<AccentDot /></strong>
     <p>
-      프로젝트 설명 어쩌고 외주개발자로 저쩌고 외주개발자로 저쩌고 외주개발자로
-      저쩌고 외주개발자로 저쩌고
+      스파르타코딩클럽 소속 계약직 외주개발자로 페이지콜의 관리자 고객을 위한
+      콘솔 페이지를 개발했습니다. Github, Figma를 활용하여 페이지콜 개발자,
+      디자이너와 협업하였습니다.(<a
+        href="https://www.sparta-builders.com/blog/client-interview-pagecall"
+        >고객 인터뷰</a
+      >, <a href="https://www.pagecall.com/product/console">콘솔 소개</a>)
     </p>
 
     <strong>Tasks<AccentDot /></strong>
     <ul>
       <li>
-        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
-        저쩌고 블라블라 와라라랄우웅ㅇ류류류
+        페이지콜의 내부 디자인 시스템을 기반으로 토스트, 캐러셀등 컴포넌트 개발
       </li>
-      <li>
-        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
-        저쩌고 블라블라 와라라랄우웅ㅇ류류류
-      </li>
-      <li>
-        내가 한거 어쩌고 저쩌고 블라블라 와라라랄우웅ㅇ류류류내가 한거 어쩌고
-        저쩌고 블라블라 와라라랄우웅ㅇ류류류
-      </li>
+      <li>로그인, 기술지원, 청구서 등 페이지 설계 및 구현</li>
+      <li>SWR을 활용한 서버 상태 관리, 백엔드 API와의 연동 작업</li>
     </ul>
 
     <strong>Tech Stack<AccentDot /></strong>
     <p>
-      React, TypeScript, Next.js 13, SWR, tailwindCSS, Storybook, Yarn Berry,
-      Monorepo
+      React, TypeScript, Next.js, SWR, tailwindCSS, Storybook, ChartJS, Yarn
+      Berry, Monorepo
     </p>
   </div>
 
   <Hr />
 
   <h1>Project<AccentDot /></h1>
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        MrC<AccentDot />
+      </p>
+    </div>
+    <p>2024.02 ~ 2023.05</p>
+  </div>
+
+  <h2>영화 리뷰 커뮤니티<AccentDot /></h2>
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      간단한 영화 리뷰 익명 커뮤니티 서비스 입니다. 최신 기술이나 필요한
+      기능들을 직접 구현하고 공부해보려 참여한 프로젝트입니다. (<a
+        href="https://mr-c.kr">Mr.C</a
+      >, <a href="https://github.com/MovieReviewComment/Mr.C">Github</a>)
+    </p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        Lexical 에디터를 Next.js에서 SSR 하기위한 패턴 설계. PoC(Proof of
+        Concept)를 통해 아이디어 검증 및 구현(<a
+          href="https://github.com/2wheeh/lexical-nextjs-ssr">PoC</a
+        >)
+      </li>
+      <li>
+        슬라이더, 페이지네이션 등 컴포넌트를 라이브러리 사용 없이 직접 구현
+      </li>
+      <li>Storybook, jest 테스트 환경 구축 및 테스트 코드 작성</li>
+    </ul>
+
+    <strong>Tech Stack<AccentDot /></strong>
+    <p>React, TypeScript, Next.js, Lexical, tailwindCSS, Storybook</p>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        픽피코<AccentDot />
+      </p>
+    </div>
+    <p>2022.12 ~ 2023.01</p>
+  </div>
+
+  <h2>인생네컷 모바일 서비스<AccentDot /></h2>
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      SW 아카데미 정글에서 5명이 한 팀으로 진행한 프로젝트입니다. (<a
+        href="https://github.com/2wheeh/picpico-client">Github</a
+      >)
+    </p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        WebRTC와 WebSocket을 활용하여 N:N mesh 방식의 Peer-to-Peer 스트리밍 구현
+      </li>
+      <li>
+        MediaStream, Canvas, Google MediaPipe API를 활용하여 스트리밍 영상의
+        배경 제거 기능 구현
+      </li>
+      <li>크로마키를 적용하여 투명도 데이터 스트리밍의 오버헤드 개선</li>
+    </ul>
+
+    <strong>Tech Stack<AccentDot /></strong>
+    <p>React, webRTC, PWA</p>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        pintOS<AccentDot />
+      </p>
+    </div>
+    <p>2022.11 ~ 2022.12</p>
+  </div>
+
+  <h2>C언어로 운영체제 구현해보기<AccentDot /></h2>
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      컴퓨터의 동작 방식을 이해하기 위한 학습용 운영체제 구현 프로젝트(<a
+        href="https://github.com/2wheeh/pintos-kaist">Github</a
+      >)
+    </p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        운영체제 코드를 직접 다뤄보며 커널, 시스템 콜, 세마포어, 프로세스,
+        가상메모리 등 컴퓨터의 동작 방식 학습
+      </li>
+      <li>
+        자료구조를 학습하고 운영체제에서 자료구조가 어떻게 사용되는지 경험
+      </li>
+      <li>수백 개의 테스트 케이스를 통과하기 위해 집요한 예외 처리와 디버깅</li>
+    </ul>
+
+    <strong>Tech Stack<AccentDot /></strong>
+    <p>C, Linux</p>
+  </div>
+
   <Hr />
-  <h1>Contribution<AccentDot /></h1>
+
+  <h1>OSS Contribution<AccentDot /></h1>
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        @facebook/lexical<AccentDot />
+      </p>
+    </div>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      meta에서 draftjs를 대체하여 facebook, instagram, whatsapp 등의 서비스에
+      사용 중인 Rich Text 에디터 프레임워크입니다. Mr.C 서비스에서 사용하기위해
+      코드베이스를 살펴보며 기여를 시작했습니다.(<a
+        href="https://github.com/facebook/lexical">Github</a
+      >)
+    </p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        에디터 외부 html, markdown 불러오기 및 내보내기 로직, React 플러그인
+        위주로 버그 수정 및 기능 개선
+      </li>
+      <li>유닛 테스트, e2e 테스트 코드 작성 및 문서화</li>
+      <li>
+        총 28개 PR 머지 (<a
+          href="https://github.com/facebook/lexical/commits?author=2wheeh"
+          >커밋</a
+        >)
+      </li>
+      <li>
+        커뮤니티 활동 (<a
+          href="https://github.com/facebook/lexical/discussions?discussions_q=is%3Aopen+answered-by%3A2wheeh+"
+          >답변</a
+        >)
+      </li>
+    </ul>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        @reactjs<AccentDot />
+      </p>
+    </div>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>리액트 공식 문서 페이지입니다.</p>
+
+    <strong>Tasks<AccentDot /></strong>
+    <ul>
+      <li>
+        공식 한글 커뮤니티 useLayoutEffect 페이지 번역 (<a
+          href="https://github.com/reactjs/ko.react.dev/pull/805">PR</a
+        >)
+      </li>
+      <li>
+        remark 커스텀 플러그인 개선 (<a
+          href="https://github.com/reactjs/react.dev/pull/6523">PR</a
+        >)
+      </li>
+    </ul>
+  </div>
+
   <Hr />
+
   <h1>Education<AccentDot /></h1>
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        정글<AccentDot />
+      </p>
+    </div>
+    <p>2022.09 ~ 2023.02</p>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>
+      카이스트 전산학부 비학위연수과정 정글 5기 수료(<a
+        href="https://swjungle.net/">홈페이지</a
+      >)
+    </p>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        UPV<AccentDot />
+      </p>
+    </div>
+    <p>2019.01 ~ 2019.07</p>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>교환학생 (Universitat Politecnica de Valencia, Spain)</p>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        한양대학교<AccentDot />
+      </p>
+    </div>
+    <p>2014.03 ~ 2020.08</p>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>생체공학전공</p>
+  </div>
+
   <Hr />
+
   <h1>Other Experience<AccentDot /></h1>
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        SK Hynix<AccentDot />
+      </p>
+    </div>
+    <p>2021.10 ~ 2022.05</p>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>CIS 사업부, 모듈 HW I/F 검증</p>
+  </div>
+
+  <br />
+
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1">
+      <p class="text-2xl font-bold">
+        LG Innotek<AccentDot />
+      </p>
+    </div>
+    <p>2020.07 ~ 2021.10</p>
+  </div>
+
+  <div class="tablest-1-4">
+    <strong>Description<AccentDot /></strong>
+    <p>광학솔루션 연구소, 모바일용 카메라 모듈 개발</p>
+  </div>
 </AboutLayout>
 
 <style>
-  .tablest > *,
-  .tablest > * > * {
+  [class^="tablest-"] > *,
+  [class^="tablest-"] > * > * {
     @apply !my-1;
+  }
+
+  [class^="tablest-"] {
+    @apply flex flex-col sm:grid;
+  }
+
+  .tablest-1-1 {
+    @apply sm:grid-cols-2;
+  }
+
+  .tablest-1-4 {
+    @apply sm:grid-cols-[1fr_4fr];
   }
 
   h2 {
