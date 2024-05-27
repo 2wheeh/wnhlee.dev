@@ -128,6 +128,8 @@ type WhoAmI = Parameters<typeof sql>;
 | ${1} | ${2} | ${3}     |
 | ${2} | ${1} | ${3}     |
 
+이 테이블을 그대로 테스트 케이스로 사용할 수 있다.
+
 ```ts twoslash {3-9}
 import { describe, test, expect } from "@jest/globals";
 
