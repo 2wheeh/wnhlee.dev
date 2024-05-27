@@ -26,7 +26,6 @@ template literal에 대해서 설명하라고 하면 위 내용만 주구장창 
 태그 즉 이름표처럼 템플릿 리터럴 앞에 함수가 붙은 걸 말한다.
 
 ```ts twoslash
-// ---cut---
 function tagFunction(strings: TemplateStringsArray, ...values: any[]) {
   console.log("strings: ", strings);
   console.log("values: ", values);
@@ -56,7 +55,6 @@ tagFunction`string text ${expression} string text`;
 [styled-components](https://styled-components.com/) 는 리터럴로 작성된 css를 tagged template으로 처리한다.
 
 ```tsx twoslash {5-8}
-// ---cut---
 import styled from "styled-components";
 
 const accentColor = "red";
@@ -121,16 +119,23 @@ type WhoAmI = Parameters<typeof sql>;
 
 ### jest
 
-마지막으로 [jest](https://jestjs.io/) 까지만 알아보자.
-
-jest 에서는 [Table-driven test](https://go.dev/wiki/TableDrivenTests)를 위해 tagged template을 사용할 수 있는데,
+[jest](https://jestjs.io/) 에서는 [Table-driven test](https://go.dev/wiki/TableDrivenTests)를 위해 tagged template을 사용할 수 있는데,
 테스트 케이스를 무려 markdown 문법의 테이블로 작성할 수 있다.
 
-```ts twoslash {3-8}
+| a    | b    | expected |
+| ---- | ---- | -------- |
+| ${1} | ${1} | ${2}     |
+| ${1} | ${2} | ${3}     |
+| ${2} | ${1} | ${3}     |
+
+이 테이블을 그대로 테스트 케이스로 사용할 수 있다.
+
+```ts twoslash {3-9}
 import { describe, test, expect } from "@jest/globals";
 
 describe.each`
   a    | b    | expected
+  ---- | ---- | --------
   ${1} | ${1} | ${2}
   ${1} | ${2} | ${3}
   ${2} | ${1} | ${3}
