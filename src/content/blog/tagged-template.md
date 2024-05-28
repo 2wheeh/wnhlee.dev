@@ -23,7 +23,7 @@ template literal에 대해서 설명하라고 하면 위 내용만 주구장창 
 ## tagged template
 
 템플릿 리터럴이 함수에 의해 태그된 걸 말한다.
-태그 즉 이름표처럼 템플릿 리터럴 앞에 함수가 붙은 걸 말한다.
+태그 즉 이름표처럼 템플릿 리터럴 앞에 함수가 붙은 경우다.
 
 ```ts twoslash
 function tagFunction(strings: TemplateStringsArray, ...values: any[]) {
@@ -52,7 +52,7 @@ tagFunction`string text ${expression} string text`;
 
 ### styled-components
 
-[styled-components](https://styled-components.com/) 는 리터럴로 작성된 css를 tagged template으로 처리한다.
+[styled-components](https://styled-components.com/) 는 리터럴로 작성된 CSS를 tagged template으로 처리한다.
 
 ```tsx twoslash {5-8}
 import styled from "styled-components";
@@ -92,7 +92,7 @@ type WhoAmI = Parameters<ThemedStyledFunction<"h1", any, {}, never>>;
 ### postgres
 
 [postgres](https://github.com/porsager/postgres/tree/master) 에서도 마찬가지.
-tagged template의 지원으로 sql 쿼리를 편하게 작성할 수 있다.
+tagged template의 지원으로 SQL 쿼리를 편하게 작성할 수 있다.
 
 ```ts twoslash {8-14, 19}
 import postgres from "postgres";
