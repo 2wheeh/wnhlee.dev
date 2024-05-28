@@ -2,14 +2,14 @@
 author: wonhee
 pubDatetime: 2024-05-28T02:37:05.000+09:00
 modDatetime:
-title: tagged template 을 알아보자
+title: tagged template을 알아보자
 pinned: false
 # draft: true
 tags:
   - es6
   - tagged template
   - template literal
-description: tagged template 을 알아봅시다
+description: tagged template을 알아봅시다
 ---
 
 ## Table of contents
@@ -154,12 +154,16 @@ describe.each`
 });
 ```
 
+![jest](./jest.png)
+
+잘된다.
+
 이 외에도 [i18n 적용](https://www.angular.kr/api/localize/init/$localize), [sanitize html](https://wesbos.com/sanitize-html-es6-template-strings), [graphql](https://github.com/apollographql/graphql-tag) 등 다양한 곳에서 문자열을 처리할 때 tagged template을 사용할 수 있고 유용하다.
 
 ---
 
 코파일럿 가라사대:
 
-![good](@assets/images/good.png)
+![good](./good.png)
 
 ---
