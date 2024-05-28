@@ -11,6 +11,8 @@ export default (post: CollectionEntry<"blog">) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        // https://github.com/vercel/satori/pull/52
+        fontFamily: '"IBM Plex Mono", "Pretendard"',
       }}
     >
       <div
