@@ -375,21 +375,29 @@ const linkedin = "linkedin.com/in/wnhlee";
 </AboutLayout>
 
 <style>
-  [class^="tablest-"] > *,
+  /* vercel deployment 에서 web server (astro) 가 build out을 뭔가 조작해서 보내면서 아래 css 가 깨짐 */
+  /* [class^="tablest-"] > *,
   [class^="tablest-"] > * > * {
+    @apply !my-1;
+  } */
+
+  /* [class^="tablest-"] {
+    @apply flex flex-col sm:grid;
+  } */
+
+  .tablest-1-1 > *,
+  .tablest-1-4 > *,
+  .tablest-1-1 > * > *,
+  .tablest-1-4 > * > * {
     @apply !my-1;
   }
 
-  [class^="tablest-"] {
-    @apply flex flex-col sm:grid;
-  }
-
   .tablest-1-1 {
-    @apply sm:grid-cols-2;
+    @apply flex flex-col sm:grid sm:grid-cols-2;
   }
 
   .tablest-1-4 {
-    @apply sm:grid-cols-[1fr_4fr];
+    @apply flex flex-col sm:grid sm:grid-cols-[1fr_4fr];
   }
 
   h2 {
