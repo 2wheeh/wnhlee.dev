@@ -64,14 +64,14 @@ Prepared Statement는 이런 시도를 막기위해 일반적으로 사용하는
 
 _Oversimplified representation of SQL prepared statements processing_
 
+> However, the query is already pre-compiled (Binding), so the final query will not go through compilation phase again. For this reason, the user-provided data will always be interpreted as a simple string and cannot modify the original query’s logic. Thus, the query will be immune to SQL Injection vulnerabilities for that data.
+
 Prepared Statement의 경우 실행할 쿼리의 문법적인 분석을 미리 수행하고, 플레이스 홀더를 입력받은 값으로 대체한다.
 따라서 악의적인 의도의 쿼리를 입력하더라도 문법적인 의미를 갖지 못하므로 공격을 방지할 수 있다.
 
-> However, the query is already pre-compiled (Binding), so the final query will not go through compilation phase again. For this reason, the user-provided data will always be interpreted as a simple string and cannot modify the original query’s logic. Thus, the query will be immune to SQL Injection vulnerabilities for that data.
-
 구현을 위한 요구사항은 결국 두 가지:
 
-- 입력값을 위한 플레이스 홀더를 준비
+- 입력받은 값을 위한 플레이스 홀더를 준비
 - 입력받은 값은 별도로 전달
 
 tagged template을 사용하면 쉽게 구현할 수 있다.
