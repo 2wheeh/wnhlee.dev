@@ -100,7 +100,8 @@ export function sqlTemplate(
 
 작성된 테스트 케이스를 참고하면 더 명확하게 보인다.
 
-```ts twoslash
+<!-- prettier-ignore-start -->
+```ts twoslash {6-7, 10-11, 14-15, 18-19}
 // @filename: sql-template.ts
 export type Primitive = string | number | boolean | undefined | null;
 
@@ -135,10 +136,7 @@ const validCases = [
   },
   {
     input: sqlTemplate`SELECT * FROM users WHERE name = ${"John; DROP TABLE users;--"}`,
-    output: [
-      "SELECT * FROM users WHERE name = $1",
-      ["John; DROP TABLE users;--"],
-    ],
+    output: ["SELECT * FROM users WHERE name = $1", ["John; DROP TABLE users;--"]],
   },
   {
     input: sqlTemplate`SELECT * FROM users WHERE name = ${"John AND 1=1"}`,
@@ -146,6 +144,7 @@ const validCases = [
   },
 ];
 ```
+<!-- prettier-ignore-end -->
 
 이 외에도 여러 라이브러리들에서 다양한 use case를 볼 수 있다.
 
