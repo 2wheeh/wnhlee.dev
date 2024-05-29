@@ -66,8 +66,8 @@
     prose-table:text-skin-base prose-th:border
     prose-th:border-skin-line prose-td:border 
     prose-td:border-skin-line prose-img:!my-2 
-    prose-img:mx-auto prose-img:border-2 prose-img:border-skin-line
-    prose-img:bg-white prose-hr:!border-skin-line;
+    prose-img:mx-auto prose-img:border-2 
+    prose-img:border-skin-line prose-hr:!border-skin-line;
   }
   .prose a {
     @apply break-words hover:!text-skin-accent;
@@ -88,6 +88,10 @@
   }
   .prose h2#table-of-contents + p {
     @apply hidden;
+  }
+
+  article > p > img {
+    background: white;
   }
 
   /* ===== scrollbar ===== */
