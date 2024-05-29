@@ -90,6 +90,10 @@
     @apply hidden;
   }
 
+  article > p > img {
+    background: white;
+  }
+
   /* ===== scrollbar ===== */
   html {
     overflow-y: scroll;
