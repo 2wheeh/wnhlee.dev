@@ -4,7 +4,7 @@ import LinkButton from "@components/LinkButton.astro";
 import AccentDot from "@components/AccentDot.astro";
 import AboutLayout from "@layouts/AboutLayout.astro";
 
-const mobile = "010-9085-2379";
+const blog = "wnhlee.dev";
 const github = "github.com/2wheeh";
 const email = "2wheeh@gmail.com";
 const linkedin = "linkedin.com/in/wnhlee";
@@ -36,7 +36,9 @@ const linkedin = "linkedin.com/in/wnhlee";
   <h1>Contact<AccentDot /></h1>
   <div class="tablest-1-1">
     <p>
-      <strong>Phone<AccentDot /> </strong>{mobile}
+      <strong>Blog<AccentDot /> </strong><LinkButton href=`https://${blog}`
+        >{blog}</LinkButton
+      >
     </p>
     <p>
       <strong>Email<AccentDot /> </strong><LinkButton href=`mailto${email}`
