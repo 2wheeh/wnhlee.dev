@@ -3,6 +3,7 @@ html[data-theme="light"] pre.shiki {
   --dropdown-background: #f1f1f1;
   --highlight-background: #f1f8ff;
   --color-border: #719af4;
+  --inline-completions-hover: #e1e1e1;
 }
 
 html[data-theme="dark"] pre.shiki {
@@ -10,6 +11,7 @@ html[data-theme="dark"] pre.shiki {
   --dropdown-background: #444;
   --highlight-background: #ffffff1a;
   --color-border: rgba(var(--color-fill));
+  --inline-completions-hover: #555;
 }
 
 .shiki.light-plus,
@@ -213,7 +215,7 @@ pre .error .code {
 pre .error-behind {
   user-select: none;
   visibility: transparent;
-  color: #fee;
+  color: transparent;
 }
 /* Queries */
 pre .arrow {
@@ -251,19 +253,36 @@ pre .inline-completions ul.dropdown {
   margin: 0;
   padding: 0;
   border-left: 4px solid #4b9edd;
+  overflow: auto;
+  max-height: 12rem;
 }
-pre .inline-completions ul.dropdown::before {
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+pre.twoslash:hover .inline-completions::before {
+  /* blinking on hover */
+  animation: blink 1s step-end infinite;
+}
+
+pre .inline-completions::before {
   background-color: #4b9edd;
-  width: 5px;
+  width: 2px;
   position: absolute;
-  top: -1.2rem;
-  left: -3px;
+  transform: translateY(-1.5rem) scaleY(0.75);
   content: " ";
 }
 pre .inline-completions ul.dropdown li {
   overflow-x: hidden;
   padding-left: 4px;
   margin-bottom: 4px;
+  cursor: pointer;
+}
+pre .inline-completions ul.dropdown li:hover {
+  background-color: var(--inline-completions-hover);
 }
 pre .inline-completions ul.dropdown li.deprecated {
   text-decoration: line-through;
