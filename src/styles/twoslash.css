@@ -137,12 +137,13 @@ pre .code-container > a {
   border-radius: 4px;
   border: 1px solid #719af4;
   padding: 0 8px;
-  color: #719af4;
+  color: #719af4 !important;
   text-decoration: none;
   opacity: 0;
   transition-timing-function: ease;
   transition: opacity 0.3s;
 }
+
 /* Respect no animations */
 @media (prefers-reduced-motion: reduce) {
   pre .code-container > a {
@@ -150,8 +151,9 @@ pre .code-container > a {
   }
 }
 pre .code-container > a:hover {
-  color: white;
+  color: white !important;
   background-color: #719af4;
+  text-decoration-line: none !important;
 }
 pre .code-container:hover a {
   opacity: 1;
