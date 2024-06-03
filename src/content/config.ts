@@ -20,6 +20,7 @@ const blog = defineCollection({
         .optional(),
       description: z.string(),
       canonicalURL: z.string().optional(),
+      translated: z.object({ from: z.string(), to: z.string() }).optional(),
     }),
 });
 
