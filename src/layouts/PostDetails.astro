@@ -14,7 +14,12 @@ import Comments from "@components/Comments";
 import { BackToTop } from "@components/BackToTop";
 
 export interface Props {
-  post: CollectionEntry<"blog">;
+  post: CollectionEntry<"blog"> & {
+    data: {
+      tags: string[];
+      translated?: { from: string; to: string };
+    };
+  };
 }
 
 const { post } = Astro.props;
@@ -28,6 +33,7 @@ const {
   pubDatetime,
   modDatetime,
   tags,
+  translated,
 } = post.data;
 
 const { Content } = await post.render();
@@ -47,6 +53,7 @@ const layoutProps = {
   canonicalURL,
   ogImage: ogUrl,
   scrollSmooth: true,
+  translated,
 };
 ---
 
