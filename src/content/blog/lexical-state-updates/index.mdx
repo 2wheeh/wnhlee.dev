@@ -1,6 +1,6 @@
 ---
 author: wonhee
-pubDatetime: 2024-06-01T00:30:47.000+09:00
+pubDatetime: 2024-06-04T00:30:47.000+09:00
 modDatetime:
 title: (번역) Lexical 상태 업데이트
 pinned: false
@@ -13,41 +13,49 @@ description: Lexical 상태 업데이트 deep dive
 canonicalURL: https://dio.la/article/lexical-state-updates
 ---
 
-[Lexical](https://lexical.dev/) is a popular JavaScript text editor framework.
+> 원문: https://dio.la/article/lexical-state-updates
+>
+> 이 포스팅은 원문 저자의 허락을 받아 번역 후 게시되었습니다.
 
-State updates are one of its core concepts, and Lexical has a very unique take on them. This article will demystify how they work.
+![Lexical-state-updates](./lexical-state-updates.png)
 
-If you are a Lexical user, you will walk away with a deeper understanding of it that'll help you build better text editors. And if you aren't, you will still add a clever JavaScript technique to your toolbelt.
+[Lexical](https://lexical.dev/)[^1]은 인기있는 JavaScript 텍스트 에디터 프레임워크입니다.
 
-# What is an update?
+상태(_state_) 업데이트는 Lexical의 핵심 개념 중 하나이며, Lexical에서는 매우 독특한 방식으로 다뤄집니다. 이 글에선 Lexical에서 상태 업데이트가 어떻게 동작하는 지 밝혀봅니다.
 
-A Lexical state (`EditorState`) holds two important pieces of data: the current **node tree** and the **selection state**. An editor instance (`LexicalEditor`) always contains a state (the "active" state).
+얻게 될 것: Lexical 사용자는 Lexical을 더 깊게 이해해서 더 좋은 텍스트 에디터를 만들 수 있음. Lexical 사용자가 아니라도 유용한 Javascript 테크닉을 하나 알게 됨.
 
-The state (not the DOM) is the source of truth for the editor. The DOM is always **computed** from the state and never the other way around. A fancier way to put it is:
+# 업데이트란 뭘까?
 
-> The view (DOM) is a function of the state (`EditorState`).
+Lexical 상태(`EditorState`)에는 중요한 데이터가 두 가지 있습니다: 현재 **노드 트리**와 **selection**[^2] **상태**입니다. 에디터 인스턴스(`LexicalEditor`)는 항상 "활성화된(_active_)" 상태(`EditorState`)를 갖습니다.
+
+상태가 에디터의 진실의 원천(_the source of truth_)입니다. (DOM이 원천이 아닙니다.) DOM은 항상 상태로부터 **계산**되며 그 반대로 계산되는 일은 없습니다.
+
+멋있게 표현해보면:
+
+> view (DOM)는 상태(`EditorState`)의 함수다.
 
 ![invert || view as a function of the state](./state-to-dom.png)
 
-When the state is updated, Lexical computes the differences between the previous and next states and then applies them to the DOM in a process called "reconciliation".
+상태가 업데이트되면, Lexical은 이전 상태와 다음 상태 사이의 차이를 계산해서 DOM에 반영합니다. 이 과정을 "재조정(_reconciliation_)"이라고 합니다.
 
 ![invert || state update and reconciliation](./state-update.png)
 
-In this simplified example, the previous state had two paragraphs, while the next one only has one. After comparing them, Lexical knows that the second paragraph needs to be removed, so it removes it from the DOM.
+이 간단한 예시를 보면, 이전 상태에는 두 개의 paragraph가 있지만, 다음 상태에는 하나만 있습니다. 이 둘을 비교해서 Lexical은 두 번째 paragraph가 없어져야 하는 것을 알게되고, DOM에서 제거합니다.
 
-This resembles the concept of "virtual DOM diffing" from other projects like React, although in practice there are many differences.
+실제로는 많이 다르겠지만, React같은 프로젝트의 "가상 DOM 비교(_diffing_)" 개념과 비슷해 보입니다.[^3]
 
 ---
 
-Lexical triggers updates internally in multiple situations. Some examples:
+Lexical은 여러 상황에서 내부적으로 업데이트를 트리거합니다. 몇 가지 예시입니다:
 
-- In response to events, like [when the user types text into the editor](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEvents.ts#L600).
-- When `LexicalEditor.focus` is called, [in order to set the right selection state](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEditor.ts#L818).
-- In some of the internal logic, [like the `markAllNodesAsDirty` util](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUtils.ts#L388).
+- [사용자가 에디터에 텍스트를 입력할 때](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEvents.ts#L600) 처럼 이벤트에 응답할 때.
+- `LexicalEditor.focus`가 호출될 때, [selection 상태를 올바르게 설정하려고](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEditor.ts#L818).
+- [유틸함수 `markAllNodesAsDirty`](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUtils.ts#L388) 같은 내부 로직에서.
 
 # `LexicalEditor.update()`
 
-It is also possible to update the state manually, by executing the `LexicalEditor.update` method with a callback (the "update function"). Here's an example from the docs:
+콜백 함수("업데이트 함수")를 `LexicalEditor.update` 메서드에 넘겨서 직접 상태를 업데이트할 수도 있습니다. 공식 문서의 예시입니다:
 
 ```ts twoslash
 import {
@@ -65,91 +73,91 @@ const config = {
 const editor = createEditor(config);
 // ---cut---
 editor.update(() => {
-  // Get the RootNode from the EditorState.
+  // EditorState에서 RootNode를 가져옵니다.
   const root = $getRoot();
 
-  // Create a new ParagraphNode.
+  // 새로운 ParagraphNode를 생성합니다.
   const paragraphNode = $createParagraphNode();
 
-  // Create a new TextNode.
+  // 새로운 TextNode를 생성합니다.
   const textNode = $createTextNode("Hello world");
 
-  // Append the text node to the paragraph.
+  // TextNode를 paragraphNode에 추가합니다.
   paragraphNode.append(textNode);
 
-  // Finally, append the paragraph to the root.
+  // 마지막으로, paragraph를 root에 추가합니다.
   root.append(paragraphNode);
 });
 ```
 
-This is one of the most important features in Lexical: the ability to **programatically update the state**.
+**프로그래밍 방식으로(_programatically_) 상태를 업데이트**할 수 있는 건 Lexical의 가장 중요한 기능 중 하나입니다.
 
-For example, if you want to build an "insert" button to add a node like "image" or "video", you need to update the state\*.
+예를 들어, "이미지"나 "비디오" 같은 노드를 추가해주는 "삽입" 버튼을 만들려면, 상태를 업데이트 하도록 구현해야 합니다.\*
 
-> \* Realistically, this would probably be implemented by dispatching an "insert" command, but even in that case, the command listener will update the state.
-
----
-
-The code example above prompts a few questions:
-
-> - We're not returning anything, nor calling any sort of `setState` function.
->
->   **How is the resulting state persisted?**
->
-> - We might have different editor instances on our app loaded at the same time.
->
->   **How does `$getRoot()` know which editor to get the root node from?**
->
-> - _...is this PHP? jQuery?!?_
->
->   **What are these `$` methods?**
-
-We'll get to the answers soon (spoiler: _they're all related to lexical scope_), but we need to lay the groundwork first.
-
-# The update lifecycle
-
-It's sometimes easier to think of state as something that is "updated" or "changed". Conceptually, that's what happens.
-
-In reality, the state of an editor instance is not _updated_: it's _replaced_ with a new state. Editor states are immutable by default and cannot be altered directly.
+> \* 실제로는 "삽입" 커맨드를 디스패치하는 방식으로 구현하게 될 텐데, 결국 커맨드 리스너가 상태를 업데이트 해줍니다.
 
 ---
 
-These are roughly the steps that happen when an update happens:
+위의 코드 예시를 보면 몇 가지 의문이 생깁니다:
+
+> - 리턴하는 것도 없고, `setState` 함수 같은 것도 호출하지 않았는데요.
+>
+>   **업데이트한 상태는 어떻게 저장되는 거에요?**
+>
+> - 앱에 로드된 다른 에디터 인스턴스가 있을 수 있잖아요.
+>
+>   **`$getRoot()`는 루트 노드를 어떤 에디터에서 가져올지 어떻게 아는 거죠?**
+>
+> - _...이거 PHP에요? jQuery인가?!?_
+>
+>   **`$` 메서드들은 뭐에요?**
+
+금방 답이 나오겠지만 (스포일러: _모두 렉시컬 스코프와 관련이 있습니다_), 차근차근 알아봅시다.
+
+# 업데이트 라이프사이클
+
+상태를 "업데이트"나 "변경"되는 것으로 생각하면 더 쉽긴합니다. 그런 개념이 맞긴 하죠.
+
+실제로는 에디터 인스턴스의 상태가 *업데이트*되는 게 아니라 새로운 상태로 *대체*됩니다. 에디터 상태는 기본적으로는 불변(_immutable_)하며 직접 변경(_alter_)할 수 없습니다.
+
+---
+
+업데이트는 대략 다음 단계로 일어납니다:
 
 export const CurrentState = () => (
-  <span class="font-bold text-green-700">current state</span>
+  <span class="font-bold text-green-700">현재 상태</span>
 );
 
 export const PendingState = () => (
-  <span class="font-bold text-orange-700">pending state</span>
+  <span class="font-bold text-orange-700">대기 상태</span>
 );
 
 export const UpdateFunction = () => (
-  <span class="font-bold text-blue-700">update function</span>
+  <span class="font-bold text-blue-700">업데이트 함수</span>
 );
 
 export const mutable = <span class="font-bold text-green-500">✔</span>;
 
 export const lock = "🔒";
 
-- The {<CurrentState />} is **cloned**. This cloned state becomes the "{<PendingState />}".
-- The {<PendingState />} becomes {mutable} **mutable**.
-- The {<UpdateFunction />} applies **changes** to the {<PendingState />}.
-- Once the {<UpdateFunction />} is done, the {<PendingState />} is {lock} **locked** (made immutable).
-- Reconciliation happens and the resulting changes are applied to the DOM.
-- The {<PendingState />} is set as the {<CurrentState />}, effectively replacing it.
+- {<CurrentState />}가 **복제**됩니다. 이 복제된 상태가 "{<PendingState />}(_pending state_)"가 됩니다.
+- {<PendingState />}가 {mutable} **변경 가능**(_mutable_)해집니다.
+- {<UpdateFunction />}가 {<PendingState />}에 **변경 사항**을 적용합니다.
+- {<UpdateFunction />}가 완료되면, {<PendingState />}가 {lock} **잠깁니다** (변경 불가능한 상태가 됩니다).
+- 재조정(_reconciliation_)이 일어나고, 결과적인 변경 사항이 DOM에 반영됩니다.
+- {<PendingState />}가 {<CurrentState />}가 되면서 실질적으로 대체합니다.
 
 ---
 
-While this doesn't answer our questions yet, it offers a hint: the pending state is mutable while the update function is running.
+우리 의문에 대한 답은 아니지만, 여기서 힌트는 얻을 수 있습니다: 업데이트 함수가 실행되는 동안 대기 상태는 변경할 수 있다는 것입니다.
 
-We now know that it is possible to mutate the pending state, but we still don't know _how_.
+이제 대기 상태는 변경하는 게 가능하단 걸 알았지만, _어떻게_ 변경하는지를 아직 모릅니다.
 
-# Anatomy of an update
+# 업데이트의 해부
 
-To get a clearer picture of what's going on, let's create a simplified version of [the method that executes an update](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUpdates.ts#L882) in Lexical. `LexicalEditor.update()` calls this method internally.
+Lexical에서 [업데이트를 실행하는 메서드](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUpdates.ts#L882)를 간단한 버전으로 만들어 보면서, 어떤 일이 일어나는 지 명확하게 이해해봅시다. `LexicalEditor.update()`는 내부적으로 이 메서드를 호출합니다.
 
-Here's a skeleton implementation:
+기본적인 구현은 다음과 같습니다:
 
 ```ts twoslash
 import type { LexicalEditor } from "lexical";
@@ -159,35 +167,35 @@ let isReadOnlyMode = true;
 declare function commitPendingUpdates(editor: LexicalEditor): void;
 // ---cut---
 function updateEditor(editor: LexicalEditor, updateFn: () => void) {
-  // Get the current state.
+  // 현재 상태를 가져옵니다.
   const currentEditorState = editor._editorState;
   //    ^?
 
-  // Clone the current state and set it as the pending state.
+  // 현재 상태를 복제해서 대기 상태로 설정합니다.
   editor._pendingEditorState = cloneEditorState(currentEditorState);
 
-  // Enable mutability.
+  // 변경이 가능하게 합니다.
   isReadOnlyMode = false;
 
-  // Execute the update function.
+  // 업데이트 함수를 실행합니다.
   updateFn();
 
-  // Disable mutability.
+  // 변경이 불가능하게 합니다.
   isReadOnlyMode = true;
 
-  // Commit pending updates.
+  // 대기 중인 업데이트를 커밋합니다.
   commitPendingUpdates(editor);
 }
 ```
 
-There are two distinct phases:
+두 가지 단계로 나눠볼 수 있습니다:
 
-1. **Update phase:** the state is cloned and the update function is executed.
-2. **Commit phase:** reconciliation happens, and the new state replaces the old one.
+1. **업데이트 단계:** 상태가 복제되고 업데이트 함수가 실행됩니다.
+2. **커밋 단계:** 재조정이 일어나고, 새로운 상태로 이전 상태를 대체합니다.
 
-> **Reconciliation** is the process of comparing the pending and current states, and applying any necessary changes to the DOM.
+> **재조정**은 대기 상태와 현재 상태를 비교해서, 필요한 변경 사항을 DOM에 적용하는 과정입니다.
 
-The second phase happens entirely inside of `commitPendingUpdates`. Here's an extremely simplified representation of what it does:
+두 번째 단계는 전부 `commitPendingUpdates`의 내부에서 이루어집니다. 이 함수를 매우 간단하게 나타내면 다음과 같습니다:
 
 ```ts twoslash
 import type { LexicalEditor, EditorState } from "lexical";
@@ -197,25 +205,25 @@ declare function reconcileDOM(
 ): void;
 // ---cut---
 function commitPendingUpdates(editor: LexicalEditor) {
-  // Get the current state.
+  // 현재 상태를 가져옵니다.
   const currentState = editor._editorState;
 
-  // Get the pending state.
+  // 대기 상태를 가져옵니다.
   const pendingState = editor._pendingEditorState!;
 
-  // Reconcile the DOM.
+  // DOM을 재조정합니다.
   reconcileDOM(currentState, pendingState);
 
-  // Set the pending state as the current state.
+  // 대기 상태를 현재 상태로 설정합니다.
   editor._editorState = pendingState;
 }
 ```
 
-# The lexical scope
+# 렉시컬 스코프
 
-Something that stands out here is `isReadOnlyMode`. Where is it coming from?
+위에서 한 가지 주목해야 할 건 `isReadOnlyMode`입니다. 이게 어디서 왔을까요?
 
-Simple: it's defined at the module level. The `LexicalUpdates.ts` module contains both the `isReadOnlyMode` variable declaration and the `updateEditor` function:
+간단합니다. 모듈 수준(_module level_)에서 정의되었습니다. `LexicalUpdates.ts` 모듈에는 `isReadOnlyMode` 변수 선언과 `updateEditor` 함수가 모두 들어있습니다:
 
 ```ts twoslash {1, 5, 7}
 import type { LexicalEditor } from "lexical";
@@ -230,21 +238,21 @@ export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
 }
 ```
 
-This is useful due to **lexical scope**.
+이렇게 정의하면 **렉시컬 스코프** 덕분에 유용합니다.
 
-> **Fun fact!**
+> **재밌는 사실!**
 >
-> Lexical used to be called "Outline", but at some point, it was renamed to "Lexical", which is a reference to JavaScript lexical scope.
+> Lexical은 원래 "Outline"이라는 이름이었지만, 중간에 "Lexical"로 이름이 바뀌었습니다. JavaScript 렉시컬 스코프를 참고한 것 입니다.
 >
-> As Dominic Gannaway (the brain behind this approach!) told me:
+> 이 아이디어를 떠올린 Dominic Gannaway가 말하길:
 >
-> "This is exactly why we called the project Lexical. It has double meaning. Lexical's main workflow is via lexical scopes, but Lexical also has meanings around language and words."
+> "이게 바로 이 프로젝트를 Lexical이라고 부르는 이유입니다. 두 가지 의미가 있는 거죠. Lexical의 핵심적인 동작들이 렉시컬 스코프를 통해 이루어진다는 것, 또 Lexical이라는 단어의 뜻처럼 언어와 어휘에 대한 프로젝트인 점을 의미하는 거에요."
 >
-> If you're unfamiliar with this concept, you should [learn about it](https://developer.mozilla.org/en-US/docs/Glossary/Scope) before you read on.
+> 이 개념이 익숙하지 않다면, 이어서 읽기 전에 [이걸 먼저 배워봅시다](https://developer.mozilla.org/en-US/docs/Glossary/Scope).
 
-Specifically, Lexical is taking advantage of _module scope_, which is the scope at which the variable is being declared. This means that we have access to the variable from anywhere in the module.
+특히 Lexical은 *모듈 스코프*를 활용하고 있습니다. 변수가 선언된 모듈 어디서든 그 변수에 접근할 수 있다는 것을 의미합니다.
 
-Here's something interesting though. If you've used Lexical before, you might have run into this error while trying to call a method like `node.insertAfter()` **outside** of an `LexicalEditor.update()` callback:
+그런데 흥미로운 점이 있습니다. Lexical을 사용해봤으면, `LexicalEditor.update()` 콜백 **밖에서** `node.insertAfter()` 같은 메서드를 호출하려고 했을 때 다음과 같은 에러를 본 적이 있을 겁니다:
 
 ```ts twoslash
 import type { NodeKey } from "lexical";
@@ -260,23 +268,23 @@ declare const key: NodeKey;
 const node = $getNodeByKey(key)!;
 const paragraph = $createParagraphNode();
 // ---cut---
-// this is fine
+// 이건 잘 동작합니다
 editor.update(() => {
   node.insertAfter(paragraph);
 });
 
-// this fails
+// 이건 실패합니다
 node.insertAfter(paragraph);
 // error: "Cannot use method in read-only mode"
 ```
 
-How does `insertAfter` know about the read-only mode state? `insertAfter` is not declared in the same file as `isReadOnlyMode`, so what's going on?
+`insertAfter`는 읽기 전용 모드(_read-only mode_) 상태를 어떻게 아는 걸까요? `insertAfter`는 `isReadOnlyMode`과 같은 파일에서 선언되어 있지 않은데, 어떻게 동작하는 걸까요?
 
-We're getting very close to the answers now.
+이제 정답에 거의 다 왔습니다.
 
-## Updates run synchronously
+## 업데이트는 동기적으로 동작한다
 
-Take another look at `updateEditor`. It is synchronous, which means that we can be confident about the order of operations. Let me illustrate this:
+`updateEditor`를 다시 한 번 살펴봅시다. 이 함수는 동기적(_synchronous_)이므로 우리는 연산 순서를 확신할 수 있습니다. 한 번 설명해보겠습니다:
 
 ```ts twoslash
 import type { LexicalEditor } from "lexical";
@@ -294,7 +302,7 @@ export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
 }
 ```
 
-This is fairly simple, but important! The key takeaway here is that, by the time our update callback is called, `isReadOnlyMode` will be `false`, effectively signaling that the pending state is mutable at that time:
+좀 단순하지만 중요한 부분입니다! 여기서 핵심은 업데이트 콜백이 호출될 때까지는 `isReadOnlyMode`가 `false`라는 것인데요. 대기 상태가 실제로 변경 가능한 상태라는 뜻 입니다:
 
 ```ts twoslash {4-5}
 import type { LexicalEditor } from "lexical";
@@ -303,14 +311,14 @@ let isReadOnlyMode = true;
 
 export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
   isReadOnlyMode = false;
-  updateFn(); // While this function runs, isReadOnlyMode is false.
+  updateFn(); // 이 함수가 실행되는 동안에는 isReadOnlyMode가 false입니다.
   isReadOnlyMode = true;
 }
 ```
 
-## Module scope can be accessed externally
+## 모듈 스코프는 외부에서 접근할 수 있습니다
 
-Modules can expose values in their scope to the outside world through `export` statements. That's the point of modules after all!
+모듈은 `export` 문을 통해 외부로 값을 노출할 수 있습니다. 이게 결국 모듈의 목적이죠!
 
 ```twoslash include module-one
 // @module: esnext
@@ -333,7 +341,7 @@ export function publicFunction() {
 // @include: module-one
 ```
 
-We can import **public** modules like this:
+**공개**(_public_) 모듈은 이렇게 임포트합니다:
 
 ```ts twoslash
 // @include: module-one
@@ -342,7 +350,7 @@ We can import **public** modules like this:
 import { publicConst, publicLet, publicFunction } from "./module-one";
 ```
 
-Values that are not exported cannot be imported from other modules (they are **"private"**).
+**내보내지 않은**(_not exported_) 값은 "**비공개**(_private_)"입니다. 다른 모듈에서 임포트할 수 없습니다.
 
 ```ts twoslash
 // @errors: 2459
@@ -354,12 +362,12 @@ import { privateConst, privateLet, privateFunction } from "./module-one";
 
 ---
 
-Let's look at the `isReadOnlyMode` variable again. It's not exported, we cannot use it directly from other modules:
+`isReadOnlyMode` 변수를 다시 살펴봅시다. 이 변수는 내보내지지 않았기 때문에 다른 모듈에서 직접 사용할 수는 없습니다:
 
 ```ts twoslash {2, 7, 10-12}
 // @errors: 2459
 // @filename: LexicalUpdates.ts
-let isReadOnlyMode = true; // no "export" keyword!
+let isReadOnlyMode = true; // "export" 키워드가 없습니다!
 
 export function updateEditor() {}
 
@@ -373,7 +381,7 @@ function $mutateStateSomehow() {
 }
 ```
 
-However, we can still create a function in our module that returns it. That's exactly what Lexical does:
+그래도 모듈 내에서 이 변수를 반환하는 함수를 만드는 건 가능합니다. Lexical에서는 바로 이렇게 하고 있습니다:
 
 ```ts twoslash {4-6, 9, 12-14}
 // @filename: LexicalUpdates.ts
@@ -393,7 +401,7 @@ function $mutateStateSomehow() {
 }
 ```
 
-Lexical goes a step further by directly exporting a function that performs this check and throws the error for us:
+Lexical은 아예 `isReadOnlyMode` 값을 확인하고 에러를 던져주는 목적으로 함수를 내보냅니다:
 
 ```ts twoslash {4-8, 11, 14}
 // @noErrors
@@ -414,13 +422,13 @@ function $mutateStateSomehow() {
 }
 ```
 
-## Module scope + synchronous execution = win
+## 모듈 스코프 + 동기적 실행 = 성공적
 
-It's time to connect the dots!
+이제 모든 것을 연결해보겠습니다!
 
-In the previous section, we created `$mutateStateSomehow`. When this function is called, it checks the value of `isReadOnlyMode` from the `LexicalUpdates.ts` module.
+이전 섹션에서 `$mutateStateSomehow` 함수를 만들었습니다. 이 함수는 호출되면, `LexicalUpdates.ts` 모듈의 `isReadOnlyMode` 값을 확인합니다.
 
-This function is intended to be called inside of `updateEditor` (normally through `LexicalEditor.update()`), like this:
+이 함수는 `updateEditor` 내부에서 (보통 `LexicalEditor.update()`을 통해서) 호출해야 합니다. 예시:
 
 ```ts twoslash
 import {
@@ -443,7 +451,7 @@ editor.update(() => {
 });
 ```
 
-Remember, our update callback is executed synchronously, and right before `isReadOnlyMode`:
+우리가 전달한 업데이트 콜백은 동기적으로 실행되고, `isReadOnlyMode` 바로 앞에서 실행되는 것을 기억합시다:
 
 ```ts twoslash {4-5}
 import type { LexicalEditor } from "lexical";
@@ -452,40 +460,44 @@ let isReadOnlyMode = true;
 
 export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
   isReadOnlyMode = false;
-  updateFn(); // $mutateStateSomehow is executed at this point.
+  updateFn(); // $mutateStateSomehow는 여기서 실행됩니다.
   isReadOnlyMode = true;
 }
 ```
 
-This means that, when `$mutateStateSomehow` is called, `isReadOnlyMode` will be `false`, and the error will not be thrown.
+즉, `$mutateStateSomehow`가 호출될 때는 `isReadOnlyMode`가 `false`일 것이고, 에러가 발생하지 않을 것 입니다.
 
 ---
 
-Now you should be able to see how Lexical cleverly takes advantage of these behaviors (synchronous execution and module scope).
+이제 Lexical이 이런 (동기적 실행과 모듈 스코프의)동작 방식을 어떤 식으로 영리하게 활용하는 지 알아볼 준비가 되었습니다.
 
-It uses them to create a "global state" of sorts. In this case, to track whether the editor is in read-only mode at some point in time. Functions that wish to mutate the state can perform this check through this technique.
+Lexical은 에디터가 특정 시점에 읽기 전용 모드인지를 추척해서, 일종의 "전역 상태"를 만들어냅니다. 에디터 상태를 변경하려는 함수들은 이 방식으로 `isReadOnlyMode`값을 확인하게 됩니다.
 
-We can answer the last question now:
+# `$` 함수들
 
-> **What are these `$` methods?**
+이제 마지막 질문에 대한 답을 할 수 있습니다:
+
+> **이 `$` 메서드들은 뭐에요?**
 >
-> The `$` prefix is a convention used with Lexical to denote functions that depend on the `LexicalUpdate.ts` lexical scope and, therefore, can only be called inside of the `LexicalEditor.update()` (or `EditorState.read()`!) callback.
+> `$` 접두사는 `LexicalUpdate.ts`의 렉시컬 스코프에 의존하는 함수를 의미하는 Lexical의 컨벤션입니다. 따라서 `LexicalEditor.update()` (또는 `EditorState.read()`!) 콜백에서만 호출할 수 있습니다.
 
-There are many `$` functions in the Lexical packages. For example, here are the ones exported by the `lexical` package itself:
+Lexical 패키지에는 `$` 함수들이 많이 있습니다. 예를 들어, `lexical` 패키지에서 내보내는 `$` 함수들은 다음과 같습니다:
 
+{/* prettier-ignore-start */}
 ```ts twoslash
 // @noErrors
-import { $ } from "lexical";
-//        ^|
+ import { $ } from "lexical";
+//         ^|
 ```
+{/* prettier-ignore-end */}
 
 <div class="h-36" />
 
-When building something with Lexical, it's also useful to use this convention for your own functions. A good rule of thumb is that, if your function is calling a `$` function, it should also be prefixed with `$`.
+Lexical로 작업할 때, 직접 만든 함수에 이 컨벤션을 사용하는 것도 좋습니다. `$` 함수를 호출하는 함수를 만들면 `$`로 접두사를 붙인다고 생각하면 대충 맞습니다.[^4]
 
-## Active editor and state
+## 활성 에디터와 상태
 
-Lexical uses the same technique to track which **editors** and **editor states** are currently "active" (which means they are the target of the current operation).
+Lexical은 어떤 **에디터**와 **에디터 상태**가 활성(_active_) 중 인지 (현재 작업 대상인지) 찾는데에 동일한 테크닉을 사용합니다.
 
 ```ts twoslash {2-3, 9, 20, 34-35, 42-43}
 import type { EditorState, LexicalEditor } from "lexical";
@@ -523,39 +535,39 @@ export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
   const currentEditorState = editor._editorState;
   editor._pendingEditorState = cloneEditorState(currentEditorState);
 
-  // Set lexically scoped variables.
+  // 렉시컬 스코프의 변수들에 값을 설정합니다.
   isReadOnlyMode = false;
   activeEditor = editor;
   activeEditorState = editor._pendingEditorState;
 
-  // Execute the update callback.
+  // 업데이트 콜백을 실행합니다.
   updateFn();
 
-  // Reset lexically scoped variables.
+  // 렉시컬 스코프의 변수들을 초기화합니다.
   isReadOnlyMode = true;
   activeEditor = null;
   activeEditorState = null;
 
-  // Commit pending updates.
+  // 대기 중인 업데이트를 커밋합니다.
   commitPendingUpdates(editor);
 }
 ```
 
-Which gives the answers to the remaining questions:
+이로써 남은 질문에 답을 할 수 있게 됐습니다:
 
-> **How is the resulting state persisted?**
+> **업데이트한 상태는 어떻게 저장되는 거에요?**
 >
-> The pending state is stored in `activeEditorState`. This state will be mutable during the `LexicalEditor.update()` callback, so it can be modified by it. Later, `commitPendingUpdates` will take care of replacing the current state with the pending one, effectively "persisting" it.
+> 대기 상태는 `activeEditorState`에 저장됩니다. 이 상태는 `LexicalEditor.update()` 콜백이 실행되는 동안 변경 가능(_mutable_)하므로 수정할 수 있습니다. 나중에 `commitPendingUpdates`가 현재 상태를 대기 상태로 대체해서, 실질적으로 "저장"합니다.
 
-> **How does `$getRoot()` know which editor to get the root node from?**
+> **`$getRoot()`는 루트 노드를 어떤 에디터에서 가져올지 어떻게 아는 거죠?**
 >
-> The editor instance is stored in `activeEditor` when `LexicalEditor.update()` is called. This allows functions like `$getRoot()` to access it (through `getActiveEditor()`).
+> `LexicalEditor.update()`가 호출될 때 에디터 인스턴스는 `activeEditor`에 저장됩니다. 이렇게 하면 `$getRoot()` 같은 함수가 (`getActiveEditor()`를 통해) 접근할 수 있게 됩니다.
 
 # `EditorState.read()`
 
-Sometimes you just want to read a state, without mutating it.
+상태를 변경하지 않고 읽기만 하고 싶을 때도 있을 겁니다.
 
-Since we still depend on the module scope, we need a [`readEditorState` function](https://github.com/facebook/lexical/blob/a0d5e95ec0371dae915b5c000e2bc68f029644d3/packages/lexical/src/LexicalUpdates.ts#L391-L410) that sets up the lexical scope for us, similar to `updateEditor`. It looks like this:
+모듈 스코프에 의존하기 때문에, `updateEditor`처럼 렉시컬 스코프를 설정해주는 [`readEditorState` 함수](https://github.com/facebook/lexical/blob/a0d5e95ec0371dae915b5c000e2bc68f029644d3/packages/lexical/src/LexicalUpdates.ts#L391-L410) 가 필요합니다. 이 함수는 다음과 같습니다:
 
 ```ts twoslash
 import type { LexicalEditor, EditorState } from "lexical";
@@ -586,19 +598,19 @@ export function readEditorState<V>(
 }
 ```
 
-> I simplified this snippet to make it easier to follow, the original function uses a different pattern. I wrote about it:
+> 위 코드는 쉽게 이해하기위해 간단하게 만든 버전이고, 실제 함수에서의 패턴은 다릅니다. 이에 대한 글입니다:
 >
-> [Try, return, finally: a curious JavaScript pattern](/article/try-return-finally)
+> [Try, return, finally: a curious JavaScript pattern](https://dio.la/article/try-return-finally)
 
-# Commit scheduling and batching
+# 커밋 스케줄링과 배칭
 
-The commit phase of an update (`commitPendingUpdates`) is [scheduled in a microtask](https://github.com/facebook/lexical/blob/a0d5e95ec0371dae915b5c000e2bc68f029644d3/packages/lexical/src/LexicalUpdates.ts#L950) by default, meaning that it will only happen after all other synchronous code has finished executing.
+업데이트의 커밋 단계(`commitPendingUpdates`)는 기본적으로 [마이크로태스크(_microtask_)로 스케줄링](https://github.com/facebook/lexical/blob/a0d5e95ec0371dae915b5c000e2bc68f029644d3/packages/lexical/src/LexicalUpdates.ts#L950)되어 있습니다. 즉, 다른 동기적인 코드의 실행이 모두 끝나야 커밋이 일어납니다.
 
-If you execute multiple updates synchronously in a row, the resulting state will only be committed once (at the end of the current tick).
+연속해서 여러 업데이트를 동기적으로 실행하면, 결과 상태는 (현재 틱이 끝날 때) 한 번만 커밋됩니다.
 
-This also happens with nested updates, which are updates that have been created during the execution of another update, or in other words, a `LexicalEditor.update()` call from the callback of another `LexicalEditor.update()` call.
+중첩된(_nested_) 업데이트에서도 마찬가지 입니다. 중첩된 업데이트는 다른 업데이트의 실행 중에 만들어진 업데이트를 의미합니다. 다시 말해서 `LexicalEditor.update()` 호출에서 다른 `LexicalEditor.update()` 콜백을 호출하는 경우입니다.
 
-Here's an example:
+예시를 보겠습니다:
 
 ```ts twoslash
 import { createEditor } from "lexical";
@@ -610,32 +622,32 @@ const config = {
 const editor = createEditor(config);
 // ---cut---
 editor.update(() => {}); // A
-// > update A is executed
+// > 업데이트 A가 실행됩니다
 
 editor.update(() => {}); // B
-// > update B is executed
+// > 업데이트 B가 실행됩니다
 
 editor.update(() => {}); // C
-// > update C is executed
+// > 업데이트 C가 실행됩니다
 
-// (any other synchronous code is executed...)
+// (다른 동기적인 코드가 실행됩니다...)
 
-// --- synchronous code finishes executing ---
+// --- 동기적인 코드가 실행을 마칩니다 ---
 
-// > updates A, B and C are committed
+// > 업데이트 A, B, C가 커밋됩니다
 ```
 
-This is possible due to the architecture of updates that we've learned about in the previous sections.
+이전 섹션들에서 배운 업데이트 아키텍처 덕분에 이런 일이 가능한 것 입니다.
 
-When multiple updates happen synchronously, they will all be updating the same pending state in a chain. Conceptually, the output of the first update will be the input of the second update, and so on.
+여러 업데이트가 동기적으로 일어나면, 모두 같은 대기 상태를 연쇄적으로 업데이트합니다. 개념적으로, 첫 번째 업데이트의 출력이 두 번째 업데이트의 입력이 되는 식입니다.
 
-Only once all updates are done, the pending state will be committed, and the editor state will be replaced with it. This is an important performance optimization since reconciliation can be an expensive process.
+모든 업데이트가 끝나면, 대기 상태가 커밋되고, 에디터 상태가 대체됩니다. 재조정은 무거워 질 수 있는 프로세스이므로 이런 배칭은 중요한 성능 최적화입니다.
 
-## Discrete updates
+## 개별적인(_discrete_) 업데이트[^5]
 
-While commit scheduling and batching are normally what we want, they can sometimes get in the way.
+보통은 커밋 스케줄링과 배칭이 우리가 원하는게 맞지만, 방해가 되는 경우도 있습니다.
 
-Consider this example: you're trying to manipulate an editor state in a server context and then persist it in a database.
+예를 들어서 서버 환경에서 에디터 상태를 조작하고, 그 상태를 데이터베이스에 저장하는 경우를 생각해봅시다.
 
 ```ts twoslash
 import { createEditor, SerializedEditorState } from "lexical";
@@ -648,15 +660,15 @@ const editor = createEditor(config);
 declare function saveToDatabase(editorState: SerializedEditorState): void;
 // ---cut---
 editor.update(() => {
-  // manipulate the state...
+  // 상태를 조작합니다...
 });
 
 saveToDatabase(editor.getEditorState().toJSON());
 ```
 
-This code will not work as expected, because the `saveToDatabase` call will happen before the state has been committed. The state that will be saved will be the same one that existed before the update.
+이 코드는 기대한 대로 동작하지 않습니다. `saveToDatabase` 호출이 끝나고 상태가 커밋되기 때문입니다. 업데이트 이전의 상태가 저장될 것 입니다.[^6]
 
-Fortunately, the `discrete: true` option for `LexicalEditor.update` forces an update to be immediately committed.
+다행히도, `discrete: true` 옵션으로 `LexicalEditor.update`가 업데이트를 즉시 커밋하도록 강제 할 수 있습니다.
 
 ```ts twoslash {5}
 import { createEditor, SerializedEditorState } from "lexical";
@@ -670,7 +682,7 @@ declare function saveToDatabase(editorState: SerializedEditorState): void;
 // ---cut---
 editor.update(
   () => {
-    // manipulate the state...
+    // 상태를 조작합니다...
   },
   { discrete: true }
 );
@@ -678,21 +690,32 @@ editor.update(
 saveToDatabase(editor.getEditorState().toJSON());
 ```
 
-Now it works as it should!
+이제 제대로 동작합니다!
 
-# Conclusion
+# 결론
 
-Understanding how updates work in Lexical has been very useful in my work.
+Lexical에서 업데이트가 어떻게 동작하는지 이해하니까 작업이 정말 편했습니다.
 
-When I first started building with Lexical, things like the `$` function prefix seemed scary and opaque at first. Not being certain about when or how updates are applied left me in the dark.
+Lexical로 처음 작업을 시작할 땐, `$` 함수 접두사 같은 것들이 무섭고 모호하게 느껴졌습니다. 업데이트가 언제, 어떻게 적용되는지 확신할 수 없어서 답답했습니다.
 
-Once I understood, I was able to use this knowledge to my advantage. And when bugs arose, finding and fixing the root cause became much easier.
+한번 이해가 되니까, 버그가 나와도 원인을 찾고 수정하는 일이 훨씬 쉬워졌습니다.
 
-I hope this article has helped you understand updates too. Stay tuned for more articles about Lexical!
+이 글이 업데이트를 이해하는 데 도움이 되었으면 좋겠습니다. Lexical에 관한 더 많은 글을 기대해주세요!
 
 ---
 
-Bonus! Here's the feedback I received from a couple of maintainers of Lexical on this article:
+보너스! Lexical 메인테이너들에게 받은 피드백:
 
-> - "It's a brilliant article." - Dominic Gannaway
-> - "This is really, really cool Dani! Thanks for putting this together! (I love the interactive examples as well). From my side, this reads very accurately fine." - John Flockton
+> - "정말 멋진 글입니다." - Dominic Gannaway
+> - "정말, 정말 최고에요 Dani! 정리해 줘서 고마워요! (예제 상호작용도 좋아요). 제가 보기엔 매우 정확하고 좋은 글입니다." - John Flockton
+
+---
+
+## 역자 주
+
+[^1]: 라이브러리을 지칭하는 경우 "_Lexical_", Javascript의 문법적 개념을 지칭하는 경우 "_렉시컬_"로 표기합니다.
+[^2]: Web API의 [Selection](https://developer.mozilla.org/en-US/docs/Web/API/Selection)처럼 Lexical 에디터에서 선택된 범위나 노드 등의 데이터를 위한 객체입니다 - [Lexical 공식 문서](https://lexical.dev/docs/concepts/selection)
+[^3]: 참고 - [React 레거시 문서](https://legacy.reactjs.org/docs/reconciliation.html)
+[^4]: [v0.15.0](https://github.com/facebook/lexical/releases/tag/v0.15.0) 부터 `$` 규칙에 대한 eslint 플러그인이 지원됩니다.
+[^5]: 이 옵션이 추가된 PR - [@facebook#3119](https://github.com/facebook/lexical/pull/3119)
+[^6]: `onUpdate` 콜백을 이용한 다른 해결방법도 있습니다 - [@facebook#5664 (comment)](https://github.com/facebook/lexical/pull/5664/files#r1506725901)
