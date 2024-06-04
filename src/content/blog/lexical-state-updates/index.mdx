@@ -21,35 +21,35 @@ translated: { from: "en", to: "ko" }
 
 ![Lexical-state-updates](./lexical-state-updates.png)
 
-[Lexical](https://lexical.dev/)[^1]은 인기있는 JavaScript 텍스트 에디터 프레임워크입니다.
+[Lexical](https://lexical.dev/)[^1]은 인기있는 JavaScript 텍스트 에디터 프레임워크다.
 
-상태(_state_) 업데이트는 Lexical의 핵심 개념 중 하나인데, Lexical에서 매우 독특한 방식으로 다뤄집니다. 이 글에선 Lexical에서 상태 업데이트가 어떻게 동작하는 지 밝혀봅니다.
+상태(_state_) 업데이트는 Lexical의 핵심 개념 중 하나인데, Lexical에서 매우 독특한 방식으로 다뤄진다. 이 글에선 Lexical에서 상태 업데이트가 어떻게 동작하는 지 밝혀본다.
 
 얻게 될 것: Lexical 사용자는 Lexical을 더 깊게 이해해서 더 좋은 텍스트 에디터를 만들 수 있음. Lexical 사용자가 아니라도 유용한 Javascript 테크닉을 하나 알게 됨.
 
 # 업데이트란 뭘까?
 
-Lexical 상태(`EditorState`)에는 중요한 데이터가 두 가지 있습니다: 현재 **노드 트리**와 **selection**[^2] **상태**입니다. 에디터 인스턴스(`LexicalEditor`)는 항상 "활성화된(_active_)" 상태(`EditorState`)를 갖습니다.
+Lexical 상태(`EditorState`)에는 중요한 데이터가 두 가지 있다: 현재 **노드 트리** 그리고 **selection**[^2] **상태**. 에디터 인스턴스(`LexicalEditor`)는 항상 "활성화된(_active_)" 상태(`EditorState`)를 갖는다.
 
-상태가 에디터의 진실의 원천(_the source of truth_)입니다. (DOM이 원천이 아닙니다.) DOM은 항상 상태로부터 **계산**되며 그 반대로 계산되는 일은 없습니다.
+이 상태가 에디터의 진실의 원천(_the source of truth_)이다. (DOM이 원천이 아님.) DOM은 항상 상태로부터 **계산**되며 그 반대로 계산되지 않는다.
 
-멋있게 표현해보면:
+멋있게 말해보면:
 
 > view (DOM)는 상태(`EditorState`)의 함수다.
 
 ![invert || view as a function of the state](./state-to-dom.png)
 
-상태가 업데이트되면, Lexical은 이전 상태와 다음 상태 사이의 차이를 계산해서 DOM에 반영합니다. 이 과정을 "재조정(_reconciliation_)"이라고 합니다.
+상태가 업데이트되면, Lexical은 이전 상태와 다음 상태 사이의 차이를 계산해서 DOM에 반영한다. 이 과정을 "재조정(_reconciliation_)"이라고 한다.
 
 ![invert || state update and reconciliation](./state-update.png)
 
-이 간단한 예시를 보면, 이전 상태에는 두 개의 paragraph가 있지만, 다음 상태에는 하나만 있습니다. 이 둘을 비교해서 Lexical은 두 번째 paragraph가 없어져야 하는 것을 알게되고, DOM에서 제거합니다.
+간단하게 만들어본 예시인데, 이전 상태에선 두 개의 paragraph가 있지만, 다음 상태에는 하나만 있는 상황이다. Lexical은 이 둘을 비교해서 두 번째 paragraph가 없어져야 하는 것을 알게되고, DOM에서 제거한다.
 
-실제로는 많이 다르겠지만, React같은 프로젝트의 "가상 DOM 비교(_diffing_)" 개념과 비슷해 보입니다.[^3]
+실제로는 많이 다르겠지만, React같은 프로젝트의 "가상 DOM 비교(_diffing_)" 개념과 비슷해 보인다.[^3]
 
 ---
 
-Lexical은 여러 상황에서 내부적으로 업데이트를 트리거합니다. 몇 가지 예시입니다:
+Lexical은 여러 상황에서 내부적으로 업데이트를 트리거한다. 몇 가지 예시:
 
 - [사용자가 에디터에 텍스트를 입력할 때](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEvents.ts#L600) 처럼 이벤트에 응답할 때.
 - `LexicalEditor.focus`가 호출될 때, [selection 상태를 올바르게 설정하려고](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalEditor.ts#L818).
@@ -57,7 +57,7 @@ Lexical은 여러 상황에서 내부적으로 업데이트를 트리거합니�
 
 # `LexicalEditor.update()`
 
-콜백 함수("업데이트 함수")를 `LexicalEditor.update` 메서드에 넘겨서 직접 상태를 업데이트할 수도 있습니다. 공식 문서의 예시입니다:
+콜백 함수("업데이트 함수")를 `LexicalEditor.update` 메서드에 넘겨서 직접 상태를 업데이트할 수도 있다. 공식 문서의 예시:
 
 ```ts twoslash
 import {
@@ -75,32 +75,32 @@ const config = {
 const editor = createEditor(config);
 // ---cut---
 editor.update(() => {
-  // EditorState에서 RootNode를 가져옵니다.
+  // EditorState에서 RootNode를 가져옴.
   const root = $getRoot();
 
-  // 새로운 ParagraphNode를 생성합니다.
+  // 새로운 ParagraphNode를 생성.
   const paragraphNode = $createParagraphNode();
 
-  // 새로운 TextNode를 생성합니다.
+  // 새로운 TextNode를 생성.
   const textNode = $createTextNode("Hello world");
 
-  // TextNode를 paragraphNode에 추가합니다.
+  // TextNode를 paragraphNode에 추가함.
   paragraphNode.append(textNode);
 
-  // 마지막으로, paragraph를 root에 추가합니다.
+  // 마지막으로, paragraph를 root에 추가함.
   root.append(paragraphNode);
 });
 ```
 
-**프로그래밍 방식으로(_programatically_) 상태를 업데이트**할 수 있는 건 Lexical의 가장 중요한 기능 중 하나입니다.
+**프로그래밍 방식으로(_programatically_) 상태를 업데이트**할 수 있는 건 Lexical에서 가장 중요한 기능 중 하나다.
 
-예를 들어, "이미지"나 "비디오" 같은 노드를 추가해주는 "삽입" 버튼을 만들려면, 상태를 업데이트 하도록 구현해야 합니다.\*
+예를 들어서 "이미지"나 "비디오" 같은 노드를 추가해주는 "삽입" 버튼을 만들려면, 클릭 시 상태를 업데이트 하도록 만들어야 한다.\*
 
-> \* 실제로는 "삽입" 커맨드를 디스패치하는 방식으로 구현하게 될 텐데, 결국 커맨드 리스너가 상태를 업데이트 해줍니다.
+> \* 실제로 구현한다면 "삽입" 커맨드를 디스패치하는 방식일 텐데, 이 때는 커맨드 리스너가 상태를 업데이트하게 된다.
 
 ---
 
-위의 코드 예시를 보면 몇 가지 의문점이 생깁니다:
+위의 코드 예시를 보면 몇 가지 의문점이 생긴다:
 
 > - 리턴하는 것도 없고, `setState` 함수 같은 것도 호출하지 않았는데요.
 >
@@ -114,17 +114,17 @@ editor.update(() => {
 >
 >   **`$` 메서드들은 뭐에요?**
 
-곧 답을 알려 드리겠습니다 (스포일러: _모두 렉시컬 스코프와 관련이 있습니다_). 차근차근 시작해봅시다.
+곧 답을 알려 줄 테니, 차근차근 시작해보자. (스포일러: _모두 렉시컬 스코프와 관련이 있음_)
 
 # 업데이트 라이프사이클
 
-상태를 "업데이트"나 "변경"되는 것으로 생각하면 더 쉽긴합니다. 개념적으로는 그렇게 되는게 맞긴 합니다.
+쉽게 생각하면 상태는 "업데이트"되거나 "변경"되는 것이다. 개념적으로는 그렇게 되는게 맞긴하다.
 
-실제로는 에디터 인스턴스의 상태가 *업데이트*되는 게 아니라 새로운 상태로 *대체*됩니다. 에디터 상태는 기본적으로는 불변(_immutable_)하며 바로 변경(_alter_)할 수 없습니다.
+실제로는 에디터 인스턴스의 상태는 *업데이트*되는 게 아니라 새로운 상태로 *대체*된다. 에디터 상태는 기본적으로는 불변(_immutable_)하며 바로 변경(_alter_)할 수 없다.
 
 ---
 
-업데이트는 대략 다음 단계로 일어납니다:
+업데이트는 대략 다음 단계로 이루어진다:
 
 export const CurrentState = () => (
   <span class="font-bold text-green-700">현재 상태</span>
@@ -142,24 +142,24 @@ export const mutable = <span class="font-bold text-green-500">✔</span>;
 
 export const lock = "🔒";
 
-- {<CurrentState />}가 **복제**됩니다. 이 복제된 상태가 "{<PendingState />}(_pending state_)"가 됩니다.
-- {<PendingState />}가 {mutable} **변경 가능**(_mutable_)해집니다.
-- {<UpdateFunction />}가 {<PendingState />}에 **변경 사항**을 적용합니다.
-- {<UpdateFunction />}가 완료되면, {<PendingState />}가 {lock} **잠깁니다** (변경 불가능한 상태가 됩니다).
-- 재조정(_reconciliation_)이 일어나고, 결과적인 변경 사항이 DOM에 반영됩니다.
-- {<PendingState />}가 {<CurrentState />}가 되면서 실질적으로 대체합니다.
+- {<CurrentState />}가 **복제**되고, 이 복제된 상태가 "{<PendingState />}(_pending state_)"가 됨
+- {<PendingState />}가 {mutable} **변경 가능**(_mutable_)하게 됨
+- {<UpdateFunction />}가 {<PendingState />}에 **변경 사항**을 적용
+- {<UpdateFunction />}가 완료되면, {<PendingState />}가 {lock} **잠김** (변경 불가능한 상태가 됨)
+- 재조정(_reconciliation_)이 일어나고, 결과적인 변경 사항이 DOM에 반영됨
+- {<PendingState />}가 {<CurrentState />}가 되면서 실질적으로 대체 함
 
 ---
 
-이걸로는 답이 되기 좀 모자라지만, 여기서 힌트는 얻을 수 있습니다: 업데이트 함수가 실행되는 동안은 대기 상태를 변경할 수 있다는 것입니다.
+이걸로는 답이 되기 좀 모자라지만, 여기서 힌트는 얻을 수 있다: 업데이트 함수가 실행되는 동안은 대기 상태를 변경할 수 있다는 것.
 
-이제 대기 상태를 변경하는 게 가능하단 걸 알았지만, _어떻게_ 그게 가능한 건 지는 아직 모릅니다.
+이제 대기 상태를 변경하는 게 가능하다는 건 알겠는데, _어떤식으로_ 그게 가능한 건지는 아직 모르겠다.
 
 # 업데이트의 해부
 
-Lexical에서 [업데이트를 실행하는 메서드](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUpdates.ts#L882)를 간단한 버전으로 만들어 보면서, 어떤 일이 일어나는 지 명확하게 이해해봅시다. `LexicalEditor.update()`는 내부적으로 이 메서드를 호출합니다.
+Lexical에서 [업데이트를 실행하는 메서드](https://github.com/facebook/lexical/blob/12a045e533b19e058d98e609873832cea2e3ac85/packages/lexical/src/LexicalUpdates.ts#L882)를 간단한 버전으로 만들어 보면서, 어떤 일이 일어나는 지 명확하게 이해해보자. `LexicalEditor.update()`는 내부적으로 이 메서드를 호출한다.
 
-기본적인 구현은 다음과 같습니다:
+기본적인 구현은 다음과 같다:
 
 ```ts twoslash
 import type { LexicalEditor } from "lexical";
@@ -169,35 +169,35 @@ let isReadOnlyMode = true;
 declare function commitPendingUpdates(editor: LexicalEditor): void;
 // ---cut---
 function updateEditor(editor: LexicalEditor, updateFn: () => void) {
-  // 현재 상태를 가져옵니다.
+  // 현재 상태를 가져옴
   const currentEditorState = editor._editorState;
   //    ^?
 
-  // 현재 상태를 복제해서 대기 상태로 설정합니다.
+  // 현재 상태를 복제해서 대기 상태로 설정
   editor._pendingEditorState = cloneEditorState(currentEditorState);
 
-  // 변경이 가능하게 합니다.
+  // 변경 가능하게 설정
   isReadOnlyMode = false;
 
-  // 업데이트 함수를 실행합니다.
+  // 업데이트 함수를 실행
   updateFn();
 
-  // 변경이 불가능하게 합니다.
+  // 변경 불가능하게 설정
   isReadOnlyMode = true;
 
-  // 대기 중인 업데이트를 커밋합니다.
+  // 대기 중인 업데이트를 커밋
   commitPendingUpdates(editor);
 }
 ```
 
-두 가지 단계로 나눠볼 수 있습니다:
+두 가지 단계로 나눠볼 수 있다:
 
-1. **업데이트 단계:** 상태가 복제되고 업데이트 함수가 실행됩니다.
-2. **커밋 단계:** 재조정이 일어나고, 새로운 상태로 이전 상태를 대체합니다.
+1. **업데이트 단계:** 상태가 복제되고 업데이트 함수가 실행된다.
+2. **커밋 단계:** 재조정이 일어나고, 새로운 상태로 이전 상태를 대체한다.
 
-> **재조정**은 대기 상태와 현재 상태를 비교해서, 필요한 변경 사항을 DOM에 적용하는 과정입니다.
+> **재조정**은 대기 상태와 현재 상태를 비교해서, 필요한 변경 사항을 DOM에 적용하는 과정이다.
 
-두 번째 단계는 전부 `commitPendingUpdates`의 내부에서 이루어집니다. 이 함수를 매우 간단하게 나타내면 다음과 같습니다:
+두 번째 단계는 전부 `commitPendingUpdates`의 내부에서 이루어진다. 이 함수를 정말 간단하게 나타내면 다음과 같다:
 
 ```ts twoslash
 import type { LexicalEditor, EditorState } from "lexical";
@@ -207,25 +207,25 @@ declare function reconcileDOM(
 ): void;
 // ---cut---
 function commitPendingUpdates(editor: LexicalEditor) {
-  // 현재 상태를 가져옵니다.
+  // 현재 상태를 가져옴
   const currentState = editor._editorState;
 
-  // 대기 상태를 가져옵니다.
+  // 대기 상태를 가져옴
   const pendingState = editor._pendingEditorState!;
 
-  // DOM을 재조정합니다.
+  // DOM 재조정
   reconcileDOM(currentState, pendingState);
 
-  // 대기 상태를 현재 상태로 설정합니다.
+  // 대기 상태를 현재 상태로 설정
   editor._editorState = pendingState;
 }
 ```
 
 # 렉시컬 스코프
 
-위에서 한 가지 주목해야 할 건 `isReadOnlyMode`입니다. 이게 어디서 왔을까요?
+위에서 한 가지 주목해야 할 건 `isReadOnlyMode`인데, 얘는 어디서 온걸까?
 
-간단합니다. 모듈 수준(_module level_)에서 정의되었습니다. `LexicalUpdates.ts` 모듈에는 `isReadOnlyMode` 변수 선언과 `updateEditor` 함수가 모두 들어있습니다:
+간단하다. 모듈 수준(_module level_)에서 정의되어 있다. `LexicalUpdates.ts` 모듈에는 `isReadOnlyMode` 변수 선언과 `updateEditor` 함수가 모두 들어있다:
 
 ```ts twoslash {1, 5, 7}
 import type { LexicalEditor } from "lexical";
@@ -240,21 +240,21 @@ export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
 }
 ```
 
-이렇게 정의하면 **렉시컬 스코프** 덕분에 유용합니다.
+이렇게 정의하면 **렉시컬 스코프** 덕분에 유용하다.
 
-> **재밌는 사실!**
+> **웃긴 사실!**
 >
-> Lexical은 원래 "Outline"이라는 이름이었지만, 중간에 "Lexical"로 이름이 바뀌었습니다. JavaScript 렉시컬 스코프를 참고한 것 입니다.
+> Lexical은 원래 "Outline"이라는 이름이었는데, 중간에 "Lexical"로 이름을 바꿨다. JavaScript 렉시컬 스코프를 참고한 것 이다.
 >
 > 이 아이디어를 떠올린 Dominic Gannaway가 말하길:
 >
 > "이게 바로 이 프로젝트를 Lexical이라고 부르는 이유입니다. 두 가지 의미가 있는 거죠. Lexical의 핵심적인 동작들이 렉시컬 스코프를 통해 이루어진다는 것, 또 Lexical이라는 단어의 뜻처럼 언어와 어휘에 대한 프로젝트인 점을 의미하는 거에요."
 >
-> 이 개념이 익숙하지 않다면, 이어서 읽기 전에 [이걸 먼저 배워봅시다](https://developer.mozilla.org/en-US/docs/Glossary/Scope).
+> 렉시컬 스코프 개념이 익숙하지 않다면, 이어서 읽기 전에 [이걸 먼저 배우고 오자](https://developer.mozilla.org/en-US/docs/Glossary/Scope).
 
-특히 Lexical은 *모듈 스코프*를 활용하고 있습니다. 변수가 선언된 모듈 어디서든 그 변수에 접근할 수 있다는 것을 의미합니다.
+특히 Lexical은 *모듈 스코프*를 활용한다. 변수가 선언된 모듈 어디서든 그 변수에 접근할 수 있다는 점을 활용한다는 의미다.
 
-그런데 흥미로운 점이 하나 있습니다. Lexical을 사용해봤다면, `LexicalEditor.update()` 콜백 **외부에서** `node.insertAfter()` 같은 메서드를 호출하려다가 다음과 같은 에러를 봤을지도 모릅니다:
+그런데 흥미로운 점이 하나 있다. Lexical을 사용해봤다면, `LexicalEditor.update()` 콜백 **외부에서** `node.insertAfter()` 같은 메서드를 호출하려다가 다음과 같은 에러를 봤을지도 모른다:
 
 ```ts twoslash
 import type { NodeKey } from "lexical";
@@ -270,23 +270,23 @@ declare const key: NodeKey;
 const node = $getNodeByKey(key)!;
 const paragraph = $createParagraphNode();
 // ---cut---
-// 이건 잘 동작합니다
+// 이건 잘 동작함
 editor.update(() => {
   node.insertAfter(paragraph);
 });
 
-// 이건 실패합니다
+// 이건 실패함
 node.insertAfter(paragraph);
 // error: "Cannot use method in read-only mode"
 ```
 
-`insertAfter`는 읽기 전용 모드(_read-only mode_) 상태를 어떻게 아는 걸까요? `insertAfter`는 `isReadOnlyMode`와 같은 파일에서 선언되어 있지 않은데, 어떻게 동작하는 걸까요?
+`insertAfter`는 읽기 전용 모드(_read-only mode_) 상태를 어떻게 아는 걸까? `insertAfter`는 `isReadOnlyMode`와 같은 파일에서 선언된 적 없다. 어떻게 동작하는 걸까?
 
-이제 정답에 거의 다 왔습니다.
+이제 정답에 거의 다 왔다.
 
 ## 업데이트는 동기적으로 동작한다
 
-`updateEditor`를 다시 한 번 살펴봅시다. 이 함수는 동기적(_synchronous_)이므로 우리는 연산 순서를 확신할 수 있습니다. 한 번 설명해보겠습니다:
+`updateEditor`를 다시 한 번 보자. 이 함수는 동기적(_synchronous_)이므로 우리는 연산 순서를 확신할 수 있다. 좀 더 설명해보면:
 
 ```ts twoslash
 import type { LexicalEditor } from "lexical";
@@ -304,7 +304,7 @@ export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
 }
 ```
 
-좀 단순하지만 중요한 부분입니다! 여기서 핵심은 업데이트 콜백이 호출될 때까지는 `isReadOnlyMode`가 `false`라는 것인데요. 대기 상태가 실제로 변경 가능한 상태라는 뜻 입니다:
+단순하지만 중요한 부분! 여기서 핵심은 업데이트 콜백이 호출될 때까지는 `isReadOnlyMode`가 `false`라는 것. 대기 상태가 실제로 변경 가능한 상태라는 의미다:
 
 ```ts twoslash {4-5}
 import type { LexicalEditor } from "lexical";
@@ -313,14 +313,14 @@ let isReadOnlyMode = true;
 
 export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
   isReadOnlyMode = false;
-  updateFn(); // 이 함수가 실행되는 동안에는 isReadOnlyMode가 false입니다.
+  updateFn(); // 이 함수가 실행되는 동안에는 isReadOnlyMode가 false
   isReadOnlyMode = true;
 }
 ```
 
 ## 모듈 스코프는 외부에서 접근할 수 있다
 
-모듈은 `export` 문을 통해 외부로 값을 노출할 수 있습니다. 이게 결국 모듈의 목적이죠!
+모듈은 `export` 문을 통해 외부로 값을 노출할 수 있다. 이게 결국 모듈의 목적인 것!
 
 ```twoslash include module-one
 // @module: esnext
@@ -343,7 +343,7 @@ export function publicFunction() {
 // @include: module-one
 ```
 
-**공개**(_public_) 모듈은 이렇게 임포트합니다:
+**공개**(_public_) 모듈은 이런 식으로 임포트(_import_)할 수 있다:
 
 ```ts twoslash
 // @include: module-one
@@ -352,7 +352,7 @@ export function publicFunction() {
 import { publicConst, publicLet, publicFunction } from "./module-one";
 ```
 
-**내보내지 않은**(_not exported_) 값은 "**비공개**(_private_)"입니다. 다른 모듈에서 임포트할 수 없습니다.
+**내보내지 않은**(_not exported_) 값은 "**비공개**(_private_)"다. 다른 모듈에서 임포트할 수 없다.
 
 ```ts twoslash
 // @errors: 2459
@@ -364,12 +364,12 @@ import { privateConst, privateLet, privateFunction } from "./module-one";
 
 ---
 
-`isReadOnlyMode` 변수를 다시 살펴봅시다. 이 변수는 내보내지지 않았기 때문에 다른 모듈에서 직접 사용할 수는 없습니다:
+`isReadOnlyMode` 변수를 다시 살펴보자. 이 변수는 내보내지지 않았기 때문에 다른 모듈에서 직접 사용할 수는 없다:
 
 ```ts twoslash {2, 7, 10-12}
 // @errors: 2459
 // @filename: LexicalUpdates.ts
-let isReadOnlyMode = true; // "export" 키워드가 없습니다!
+let isReadOnlyMode = true; // "export" 키워드가 없다!
 
 export function updateEditor() {}
 
@@ -383,7 +383,7 @@ function $mutateStateSomehow() {
 }
 ```
 
-그래도 모듈 내에서 이 변수를 반환하는 함수를 만드는 건 가능합니다. Lexical에서는 바로 이렇게 하고 있습니다:
+그래도 모듈 내부에서 이 변수를 반환하는 함수를 만드는 건 가능하다. Lexical에서 사용하는게 이런 패턴이다:
 
 ```ts twoslash {4-6, 9, 12-14}
 // @filename: LexicalUpdates.ts
@@ -403,7 +403,7 @@ function $mutateStateSomehow() {
 }
 ```
 
-Lexical은 아예 `isReadOnlyMode` 값을 확인하고 에러를 던져주는 목적으로 함수를 내보냅니다:
+Lexical에서는 아예 `isReadOnlyMode` 값을 확인하고 에러를 던져주는 용도로 함수를 만들어 내보낸다:
 
 ```ts twoslash {4-8, 11, 14}
 // @noErrors
@@ -426,11 +426,11 @@ function $mutateStateSomehow() {
 
 ## 모듈 스코프 + 동기적 실행 = 성공적
 
-이제 모든 것을 연결해보겠습니다!
+이제 지금까지 나온 개념들을 연결해보자!
 
-이전 섹션에서 `$mutateStateSomehow` 함수를 만들었습니다. 이 함수는 호출되면, `LexicalUpdates.ts` 모듈의 `isReadOnlyMode` 값을 확인합니다.
+이전 섹션에서 만든 `$mutateStateSomehow` 함수는 호출되면, `LexicalUpdates.ts` 모듈의 `isReadOnlyMode` 값을 확인합니다.
 
-이 함수는 `updateEditor` 내부에서 (보통 `LexicalEditor.update()`을 통해서) 호출해야 합니다. 예시:
+이 함수는 `updateEditor` 내부에서 (보통 `LexicalEditor.update()`을 통해서) 호출해야 한다. 예시:
 
 ```ts twoslash
 import {
@@ -453,7 +453,7 @@ editor.update(() => {
 });
 ```
 
-우리가 전달한 업데이트 콜백은 동기적으로 실행되고, `isReadOnlyMode` 바로 앞에서 실행되는 것을 기억합시다:
+우리가 전달한 업데이트 콜백은 동기적으로 실행되고, `isReadOnlyMode` 바로 앞에서 실행되는 것을 기억하자:
 
 ```ts twoslash {4-5}
 import type { LexicalEditor } from "lexical";
@@ -462,20 +462,20 @@ let isReadOnlyMode = true;
 
 export function updateEditor(editor: LexicalEditor, updateFn: () => void) {
   isReadOnlyMode = false;
-  updateFn(); // $mutateStateSomehow는 여기서 실행됩니다.
+  updateFn(); // $mutateStateSomehow는 여기서 실행 됨
   isReadOnlyMode = true;
 }
 ```
 
-즉, `$mutateStateSomehow`가 호출될 때는 `isReadOnlyMode`가 `false`일 것이고, 에러가 발생하지 않을 것 입니다.
+즉, `$mutateStateSomehow`가 호출될 때는 `isReadOnlyMode`가 `false`일 것이고, 에러가 발생하지 않을 것이다.
 
 ---
 
-이제 Lexical이 이런 (동기적 실행과 모듈 스코프의)동작 방식을 어떤 식으로 영리하게 활용하는 지 알아볼 준비가 되었습니다.
+이제 Lexical이 이런 (동기적 실행과 모듈 스코프의)동작 방식을 어떤 식으로 똘똘하게 활용하는 지 알아볼 준비가 끝났다.
 
-Lexical은 에디터가 특정 시점에 읽기 전용 모드인지를 추척해서, 일종의 "전역 상태"를 만들어냅니다. 에디터 상태를 변경하려는 함수들은 이 방식으로 `isReadOnlyMode`값을 확인하게 됩니다.
+Lexical은 에디터가 특정 시점에 읽기 전용 모드인지를 확인하는 데에 이 패턴을 사용한다. 이 패턴으로 일종의 "전역 상태"를 만들어낸다. 에디터 상태를 변경하려는 함수들은 이 방식으로 `isReadOnlyMode`값을 확인하는 것이다.
 
-이제 마지막 질문은 답을 할 수 있습니다:
+이제 마지막 질문은 답을 할 수 있다:
 
 > **이 `$` 메서드들은 뭐에요?**
 >
@@ -694,20 +694,20 @@ saveToDatabase(editor.getEditorState().toJSON());
 
 # 결론
 
-Lexical에서 업데이트가 어떻게 동작하는지 이해하니까 작업이 정말 편했습니다.
+Lexical에서 업데이트가 어떻게 동작하는지 이해하니까 정말 편하게 작업할 수 있었습니다.
 
-Lexical로 처음 작업을 시작할 땐, `$` 함수 접두사 같은 것들이 무섭고 모호하게 느껴졌습니다. 업데이트가 언제, 어떻게 적용되는지 확신할 수 없어서 답답했습니다.
+Lexical을 처음 접했을 땐, `$` 함수 접두사 같은 것은 것들이 무섭고 모호하다고 느꼈어요. 업데이트가 언제, 어떻게 적용되는지 확신할 수 없어서 눈앞이 캄캄했습니다.
 
-한번 이해가 되니까, 버그가 나와도 원인을 찾고 수정하는 일이 훨씬 쉬워졌습니다.
+한번 이해가 되니까, 버그가 나와도 원인을 찾고 수정하는 일이 훨씬 수월했습니다.
 
-이 글이 업데이트를 이해하는 데 도움이 되었으면 좋겠습니다. Lexical에 관한 더 많은 글을 기대해주세요!
+이 글이 업데이트를 이해하는 데 도움이 되었으면 좋겠어요. Lexical에 관한 더 많은 글을 기대해주세요!
 
 ---
 
 보너스! Lexical 메인테이너들에게 받은 피드백:
 
-> - "정말 흘륭한 글입니다." - Dominic Gannaway
-> - "진짜 최고에요 Dani! 정리해 줘서 고마워요! (예제 상호작용도 너무 좋아요). 제가 보기엔 매우 정확하고 좋은 글입니다." - John Flockton
+> - "진짜 잘썼네요." - Dominic Gannaway
+> - "너무 좋아요 Dani! 정리해 줘서 고마워요! (예제 상호작용도 최고임). 제가 보기엔 매우 정확하고 좋은 글입니다." - John Flockton
 
 ---
 
