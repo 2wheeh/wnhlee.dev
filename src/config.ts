@@ -1,5 +1,10 @@
-import type { Site, SocialObjects } from "./types";
+import type { Site, SocialObjects, About } from "./types";
 import type { GiscusProps } from "@giscus/react";
+
+export const ABOUT: About = {
+  name: "Wonhee Lee",
+  job: "Frontend Developer",
+};
 
 export const SITE: Site = {
   website: "https://wnhlee.dev/", // replace this with your deployed domain
