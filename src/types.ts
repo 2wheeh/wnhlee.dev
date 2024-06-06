@@ -17,3 +17,8 @@ export type SocialObjects = {
   active: boolean;
   linkTitle: string;
 }[];
+
+export type About = {
+  name: string;
+  job: string;
+};

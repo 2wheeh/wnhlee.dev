@@ -3,6 +3,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { type CollectionEntry } from "astro:content";
 import postOgImage from "./og-templates/post";
 import siteOgImage from "./og-templates/site";
+import aboutOgImage from "./og-templates/about";
 import fs from "fs/promises";
 
 const fontPath = (
@@ -78,5 +79,10 @@ export async function generateOgImageForPost(post: CollectionEntry<"blog">) {
 
 export async function generateOgImageForSite() {
   const svg = await satori(siteOgImage(), options);
+  return svgBufferToPngBuffer(svg);
+}
+
+export async function generateOgImageForAbout() {
+  const svg = await satori(aboutOgImage(), options);
   return svgBufferToPngBuffer(svg);
 }
