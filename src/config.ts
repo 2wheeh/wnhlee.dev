@@ -6,7 +6,7 @@ export const SITE: Site = {
   author: "Wonhee Lee",
   desc: "Personal blog by Wonhee Lee",
   title: "wnhlee.dev",
-  ogImage: "astropaper-og.jpg",
+  ogImage: "og.png",
   lightAndDarkMode: true,
   postPerPage: 5,
   scheduledPostMargin: 15 * 60 * 1000, // 15 minutes
