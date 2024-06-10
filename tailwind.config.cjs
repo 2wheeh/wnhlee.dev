@@ -42,6 +42,7 @@ module.exports = {
       borderColor: {
         skin: {
           line: withOpacity("--color-border"),
+          'line-inverse': withOpacity("--color-border-inverse"),
           fill: withOpacity("--color-text-base"),
           accent: withOpacity("--color-accent"),
         },

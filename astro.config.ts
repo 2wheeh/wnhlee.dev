@@ -7,6 +7,7 @@ import sitemap from "@astrojs/sitemap";
 import { SITE } from "./src/config";
 import remarkTwoslash from "remark-shiki-twoslash";
 import mdx from "@astrojs/mdx";
+import { remarkInvertImages } from "./src/utils/remarkInvertImages";
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,6 +24,7 @@ export default defineConfig({
     syntaxHighlight: false,
     remarkPlugins: [
       remarkToc,
+      remarkInvertImages,
       [
         remarkCollapse,
         {
