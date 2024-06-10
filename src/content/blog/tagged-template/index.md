@@ -60,7 +60,7 @@ SQL 쿼리 생성 시 클라이언트로부터 동적으로 문자열을 입력�
 
 Prepared Statement는 이런 시도를 막기위해 일반적으로 사용하는 전략이다.
 
-![prepared-statement](./prepared-statement.webp)
+![invert || prepared-statement](./prepared-statement.webp)
 
 _Oversimplified representation of SQL prepared statements processing_
 
