@@ -1,0 +1,53 @@
+---
+import { getCollection } from "astro:content";
+import getPageNumbers from "@utils/getPageNumbers";
+import getSortedLogs from "@utils/getSortedLogs";
+import getPagination from "@utils/getPagination";
+import getUniqueYears from "@utils/getUniqueYears";
+import Logs from "@layouts/Logs.astro";
+
+export interface Props {
+  selectedYear: number;
+}
+
+export async function getStaticPaths() {
+  const logs = await getCollection("log", ({ data }) => !data.draft);
+
+  const years = getUniqueYears(logs);
+  const yearPaths = years.map(year => ({
+    params: { slug: String(year) },
+    props: { selectedYear: year },
+  }));
+
+  const pinnedLogs = logs.filter(({ data }) => data.pinned);
+  const pagePaths = getPageNumbers(pinnedLogs.length).map(pageNum => ({
+    params: { slug: String(pageNum) },
+  }));
+
+  return [...yearPaths, ...pagePaths];
+}
+
+const { slug } = Astro.params;
+const { selectedYear } = Astro.props;
+
+const logs = await getCollection("log");
+const years = getUniqueYears(logs);
+
+const pinnedLogs = logs.filter(({ data }) => data.pinned);
+
+const logsBySelectedYear = pinnedLogs.filter(({ slug }) => {
+  return slug.startsWith(String(selectedYear));
+});
+
+const sortedLogs = selectedYear
+  ? getSortedLogs(logsBySelectedYear)
+  : getSortedLogs(pinnedLogs);
+
+const pagination = getPagination({
+  posts: sortedLogs,
+  page: selectedYear ? 1 : Number(slug),
+  isIndex: selectedYear ? true : false,
+});
+---
+
+<Logs {...pagination} {years} {selectedYear} />

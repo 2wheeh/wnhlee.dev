@@ -1,0 +1,3 @@
+export const findInitialDayOfYear = (year: number) => {
+  return new Date(year, 0, 1).getDay(); // 0: Sunday, 1: Monday, ...
+};

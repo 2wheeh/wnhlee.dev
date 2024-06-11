@@ -32,6 +32,9 @@ module.exports = {
           inverted: withOpacity("--color-text-base"),
           card: withOpacity("--color-card"),
           "card-muted": withOpacity("--color-card-muted"),
+          "active-cell": withOpacity("--color-active-cell"),
+          "inactive-cell": withOpacity("--color-inactive-cell"),
+          "cell-tooltip": withOpacity("--color-cell-tooltip-bg"),
         },
       },
       outlineColor: {

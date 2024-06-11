@@ -22,6 +22,22 @@ breadcrumbList[0] === "tags" &&
       Number(breadcrumbList[2]) === 1 ? "" : "(page " + breadcrumbList[2] + ")"
     }`
   );
+
+// Logs
+breadcrumbList[0] === "logs" &&
+  !isNaN(Number(breadcrumbList[2])) &&
+  breadcrumbList.splice(
+    1,
+    3,
+    `${breadcrumbList[1]} ${
+      Number(breadcrumbList[2]) === 1 ? "" : "(page " + breadcrumbList[2] + ")"
+    }`
+  );
+
+breadcrumbList[0] === "logs" &&
+  !isNaN(Number(breadcrumbList[1])) &&
+  Number(breadcrumbList[1]) < 2000 &&
+  breadcrumbList.splice(0, 2, `Logs (page ${breadcrumbList[1]})`);
 ---
 
 <nav class="breadcrumb print:hidden" aria-label="breadcrumb">
