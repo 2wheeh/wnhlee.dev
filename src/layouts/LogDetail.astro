@@ -70,13 +70,13 @@ const activeDates: string[] = logs
     </button>
   </div>
 
-  <section>
+  <div class="mx-auto w-full max-w-3xl px-4">
     <DatePicker
       years={years}
       selectedYear={selectedYear}
       activeDates={activeDates}
     />
-  </section>
+  </div>
 
   <main id="main-content">
     <h1 transition:name={slugifyStr(title)} class="post-title">{title}</h1>
@@ -112,6 +112,7 @@ const activeDates: string[] = logs
   main {
     @apply mx-auto w-full max-w-3xl px-4 py-12;
   }
+
   .post-title {
     @apply text-2xl font-semibold text-skin-accent;
   }
