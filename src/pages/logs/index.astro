@@ -1,0 +1,22 @@
+---
+import Logs from "@layouts/Logs.astro";
+import getSortedPosts from "@utils/getSortedPosts";
+import { getCollection } from "astro:content";
+import getPagination from "@utils/getPagination";
+import getUniqueYears from "@utils/getUniqueYears";
+
+const logs = await getCollection("log");
+
+const sortedLogs = getSortedPosts(logs);
+const pinnedLogs = sortedLogs.filter(({ data }) => data.pinned);
+
+const pagination = getPagination({
+  posts: pinnedLogs,
+  page: 1,
+  isIndex: true,
+});
+
+const years = getUniqueYears(sortedLogs);
+---
+
+<Logs {...pagination} {years} />

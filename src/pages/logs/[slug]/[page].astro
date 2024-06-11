@@ -1,0 +1,57 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import getPageNumbers from "@utils/getPageNumbers";
+import getSortedPosts from "@utils/getSortedPosts";
+import getPagination from "@utils/getPagination";
+import getUniqueYears from "@utils/getUniqueYears";
+import Logs from "@layouts/Logs.astro";
+
+export interface Props {
+  log: CollectionEntry<"log">;
+}
+
+export async function getStaticPaths() {
+  const logs = await getCollection("log", ({ data }) => !data.draft);
+
+  const years = getUniqueYears(logs);
+
+  const logResult = logs.map(log => ({
+    params: { slug: log.slug.split("/")[0], page: log.slug.split("/")[1] },
+    props: { log },
+  }));
+
+  const pagePaths = years.flatMap(year => {
+    const logsByYear = logs.filter(log => log.slug.startsWith(`${year}/`));
+
+    return getPageNumbers(logsByYear.length).map(pageNum => ({
+      params: { slug: String(year), page: String(pageNum) },
+    }));
+  });
+
+  return [...logResult, ...pagePaths];
+}
+
+const { slug, page } = Astro.params;
+const { log } = Astro.props;
+
+const logs = await getCollection("log");
+
+const selectedYear = Number(slug);
+
+const sortedLogs = getSortedPosts(logs);
+const pinnedLogs = sortedLogs.filter(log => log.data.pinned);
+const logsBySelectedYear = pinnedLogs.filter(
+  log => new Date(log.data.pubDatetime).getFullYear() === selectedYear
+);
+
+const years = getUniqueYears(sortedLogs);
+
+const pagination = getPagination({
+  posts: logsBySelectedYear,
+  page,
+});
+---
+
+<!-- todo: log detail -->{
+  log ? <>{log.data.title}</> : <Logs {...pagination} {years} {selectedYear} />
+}
