@@ -6,8 +6,9 @@ import Header from "@components/Header.astro";
 import Footer from "@components/Footer.astro";
 import Pagination from "@components/Pagination.astro";
 import Card from "@components/LogCard";
-import { DatePicker } from "@components/DatePicker";
+import DatePicker from "@components/DatePicker.astro";
 import { SITE } from "@config";
+import { getCollection } from "astro:content";
 
 export interface Props {
   currentPage: number;
@@ -23,6 +24,12 @@ const { currentPage, totalPages, paginatedPosts, selectedYear, years } =
 const baseUrl = `/logs${selectedYear ? `/${selectedYear}` : ""}`;
 const prevUrl = `${baseUrl}${currentPage - 1 !== 1 ? "/" + (currentPage - 1) : ""}/`;
 const nextUrl = `${baseUrl}/${currentPage + 1}/`;
+
+const logs = await getCollection("log");
+
+const activeDates: string[] = logs
+  .filter(log => log.slug.split("/")[0] === String(selectedYear ?? years[0]))
+  .map(log => log.slug.split("/")[1]);
 ---
 
 <Layout title={`Logs | ${SITE.title}`}>
@@ -30,15 +37,19 @@ const nextUrl = `${baseUrl}/${currentPage + 1}/`;
   <Main
     pageTitle="Logs"
     pageDesc={selectedYear
-      ? `My daily Logs on ${selectedYear}`
+      ? `My daily Logs in ${selectedYear}`
       : `My daily Logs`}
   >
-    <DatePicker years={years} selectedYear={selectedYear} />
+    <DatePicker
+      years={years}
+      selectedYear={selectedYear}
+      activeDates={activeDates}
+    />
 
     {
       paginatedPosts.length > 0 && (
         <>
-          <h2>Pinned Logs</h2>
+          <h2>Pinned Logs {selectedYear && `in ${selectedYear}`}</h2>
           <ul>
             {paginatedPosts.map(({ data, slug }) => (
               <Card href={`/logs/${slug}/`} frontmatter={data} slug={slug} />
@@ -56,6 +67,6 @@ const nextUrl = `${baseUrl}/${currentPage + 1}/`;
 
 <style>
   h2 {
-    @apply text-2xl font-semibold tracking-wide;
+    @apply pt-12 text-2xl font-semibold tracking-wide;
   }
 </style>

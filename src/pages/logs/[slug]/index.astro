@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import getPageNumbers from "@utils/getPageNumbers";
-import getSortedPosts from "@utils/getSortedPosts";
+import getSortedLogs from "@utils/getSortedLogs";
 import getPagination from "@utils/getPagination";
 import getUniqueYears from "@utils/getUniqueYears";
 import Logs from "@layouts/Logs.astro";
@@ -35,14 +35,13 @@ const years = getUniqueYears(logs);
 
 const pinnedLogs = logs.filter(({ data }) => data.pinned);
 
-const logsBySelectedYear = pinnedLogs.filter(({ data }) => {
-  const year = new Date(data.pubDatetime).getFullYear();
-  return year === selectedYear;
+const logsBySelectedYear = pinnedLogs.filter(({ slug }) => {
+  return slug.startsWith(String(selectedYear));
 });
 
 const sortedLogs = selectedYear
-  ? getSortedPosts(logsBySelectedYear)
-  : getSortedPosts(pinnedLogs);
+  ? getSortedLogs(logsBySelectedYear)
+  : getSortedLogs(pinnedLogs);
 
 const pagination = getPagination({
   posts: sortedLogs,

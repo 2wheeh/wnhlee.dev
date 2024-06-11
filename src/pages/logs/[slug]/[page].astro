@@ -1,10 +1,11 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
 import getPageNumbers from "@utils/getPageNumbers";
-import getSortedPosts from "@utils/getSortedPosts";
 import getPagination from "@utils/getPagination";
 import getUniqueYears from "@utils/getUniqueYears";
 import Logs from "@layouts/Logs.astro";
+import getSortedLogs from "@utils/getSortedLogs";
+import LogDetail from "@layouts/LogDetail.astro";
 
 export interface Props {
   log: CollectionEntry<"log">;
@@ -38,10 +39,10 @@ const logs = await getCollection("log");
 
 const selectedYear = Number(slug);
 
-const sortedLogs = getSortedPosts(logs);
+const sortedLogs = getSortedLogs(logs);
 const pinnedLogs = sortedLogs.filter(log => log.data.pinned);
-const logsBySelectedYear = pinnedLogs.filter(
-  log => new Date(log.data.pubDatetime).getFullYear() === selectedYear
+const logsBySelectedYear = pinnedLogs.filter(log =>
+  log.slug.startsWith(String(selectedYear))
 );
 
 const years = getUniqueYears(sortedLogs);
@@ -53,5 +54,9 @@ const pagination = getPagination({
 ---
 
 <!-- todo: log detail -->{
-  log ? <>{log.data.title}</> : <Logs {...pagination} {years} {selectedYear} />
+  log ? (
+    <LogDetail {log} {years} {selectedYear} />
+  ) : (
+    <Logs {...pagination} {years} {selectedYear} />
+  )
 }

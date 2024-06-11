@@ -1,13 +1,13 @@
 ---
 import Logs from "@layouts/Logs.astro";
-import getSortedPosts from "@utils/getSortedPosts";
+import getSortedLogs from "@utils/getSortedLogs";
 import { getCollection } from "astro:content";
 import getPagination from "@utils/getPagination";
 import getUniqueYears from "@utils/getUniqueYears";
 
 const logs = await getCollection("log");
 
-const sortedLogs = getSortedPosts(logs);
+const sortedLogs = getSortedLogs(logs);
 const pinnedLogs = sortedLogs.filter(({ data }) => data.pinned);
 
 const pagination = getPagination({
