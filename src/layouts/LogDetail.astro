@@ -18,7 +18,7 @@ import { getCollection } from "astro:content";
 export interface Props {
   log: CollectionEntry<"log"> & {
     data: {
-      tags: string[];
+      tags?: string[];
     };
   };
   years: number[];
