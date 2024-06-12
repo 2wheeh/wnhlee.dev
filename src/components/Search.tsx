@@ -2,43 +2,69 @@ import Fuse from "fuse.js";
 import { useEffect, useRef, useState, useMemo } from "react";
 import Card from "@components/Card";
 import type { CollectionEntry } from "astro:content";
+import LogCard from "@components/LogCard";
 
-export type SearchItem = {
+export type SearchPostItem = {
   title: string;
   description: string;
   data: CollectionEntry<"blog">["data"];
-  slug: string;
+  slug: CollectionEntry<"blog">["slug"];
+};
+
+export type SearchLogItem = {
+  title: string;
+  description: string;
+  data: CollectionEntry<"log">["data"];
+  slug: CollectionEntry<"log">["slug"];
 };
 
 interface Props {
-  searchList: SearchItem[];
+  searchPostList: SearchPostItem[];
+  searchLogList: SearchLogItem[];
 }
 
-interface SearchResult {
-  item: SearchItem;
+interface SearchResult<T> {
+  item: T;
   refIndex: number;
 }
 
-export default function SearchBar({ searchList }: Props) {
+interface SearchResults {
+  postResults: SearchResult<SearchPostItem>[] | null;
+  logResults: SearchResult<SearchLogItem>[] | null;
+}
+
+export default function SearchBar({ searchPostList, searchLogList }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputVal, setInputVal] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[] | null>(
-    null
-  );
+  const [searchResults, setSearchResults] = useState<SearchResults>({
+    postResults: null,
+    logResults: null,
+  });
 
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     setInputVal(e.currentTarget.value);
   };
 
-  const fuse = useMemo(
+  const fuseForPost = useMemo(
     () =>
-      new Fuse(searchList, {
+      new Fuse(searchPostList, {
         keys: ["title", "description"],
         includeMatches: true,
         minMatchCharLength: 2,
         threshold: 0.5,
       }),
-    [searchList]
+    [searchPostList]
+  );
+
+  const fuseForLog = useMemo(
+    () =>
+      new Fuse(searchLogList, {
+        keys: ["title", "description"],
+        includeMatches: true,
+        minMatchCharLength: 2,
+        threshold: 0.5,
+      }),
+    [searchLogList]
   );
 
   useEffect(() => {
@@ -58,7 +84,13 @@ export default function SearchBar({ searchList }: Props) {
   useEffect(() => {
     // Add search result only if
     // input value is more than one character
-    let inputResult = inputVal.length > 1 ? fuse.search(inputVal) : [];
+    let inputResult =
+      inputVal.length > 1
+        ? {
+            postResults: fuseForPost.search(inputVal),
+            logResults: fuseForLog.search(inputVal),
+          }
+        : { postResults: [], logResults: [] };
     setSearchResults(inputResult);
 
     // Update search string in URL
@@ -100,21 +132,47 @@ export default function SearchBar({ searchList }: Props) {
 
       {inputVal.length > 1 && (
         <div className="mt-8">
-          Found {searchResults?.length}
-          {searchResults?.length && searchResults?.length === 1
+          Found {searchResults.postResults?.length}
+          {searchResults.postResults?.length &&
+          searchResults.postResults.length === 1
             ? " result"
             : " results"}{" "}
-          for '{inputVal}'
+          for '{inputVal}' in posts
         </div>
       )}
 
       <ul>
-        {searchResults &&
-          searchResults.map(({ item, refIndex }) => (
+        {searchResults.postResults &&
+          searchResults.postResults.map(({ item, refIndex }) => (
             <Card
               href={`/posts/${item.slug}/`}
               frontmatter={item.data}
               key={`${refIndex}-${item.slug}`}
+            />
+          ))}
+      </ul>
+
+      <br />
+
+      {inputVal.length > 1 && (
+        <div className="mt-8">
+          Found {searchResults.logResults?.length}
+          {searchResults.logResults?.length &&
+          searchResults.logResults.length === 1
+            ? " result"
+            : " results"}{" "}
+          for '{inputVal}' in logs
+        </div>
+      )}
+
+      <ul>
+        {searchResults.logResults &&
+          searchResults.logResults.map(({ item, refIndex }) => (
+            <LogCard
+              href={`/logs/${item.slug}/`}
+              frontmatter={item.data}
+              key={`${refIndex}-${item.slug}`}
+              slug={item.slug}
             />
           ))}
       </ul>
