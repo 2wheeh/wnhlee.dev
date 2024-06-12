@@ -18,7 +18,7 @@ import { getCollection } from "astro:content";
 export interface Props {
   log: CollectionEntry<"log"> & {
     data: {
-      tags: string[];
+      tags?: string[];
     };
   };
   years: number[];
@@ -92,7 +92,7 @@ const activeDates: string[] = logs
     </article>
 
     <ul class="my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} />)}
+      {tags && tags.map(tag => <Tag tag={slugifyStr(tag)} />)}
     </ul>
 
     <div
