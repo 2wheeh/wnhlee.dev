@@ -9,7 +9,6 @@ import remarkTwoslash from "remark-shiki-twoslash";
 import mdx from "@astrojs/mdx";
 import { remarkInvertImages } from "./src/utils/remarkInvertImages";
 import AutoImport from "astro-auto-import";
-import qwikdev from "@qwikdev/astro";
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,12 +22,11 @@ export default defineConfig({
     AutoImport({
       imports: [
         {
-          "./src/components/Stackblitz.tsx": [["default", "StackaBlitz"]],
+          "./src/components/react/Stackblitz.tsx": ["StackBlitz"],
         },
       ],
     }),
     mdx(),
-    qwikdev(),
   ],
   markdown: {
     syntaxHighlight: false,
