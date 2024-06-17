@@ -1,8 +1,8 @@
 import Fuse from "fuse.js";
 import { useEffect, useRef, useState, useMemo } from "react";
-import Card from "@components/Card";
+import Card from "@components/react/Card";
 import type { CollectionEntry } from "astro:content";
-import LogCard from "@components/LogCard";
+import LogCard from "@components/react/LogCard";
 
 export type SearchPostItem = {
   title: string;

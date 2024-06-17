@@ -8,6 +8,7 @@ import { SITE } from "./src/config";
 import remarkTwoslash from "remark-shiki-twoslash";
 import mdx from "@astrojs/mdx";
 import { remarkInvertImages } from "./src/utils/remarkInvertImages";
+import AutoImport from "astro-auto-import";
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,8 +17,15 @@ export default defineConfig({
     tailwind({
       applyBaseStyles: false,
     }),
-    react(),
+    react({ include: "**/react/*" }),
     sitemap(),
+    AutoImport({
+      imports: [
+        {
+          "./src/components/react/Stackblitz.tsx": ["StackBlitz"],
+        },
+      ],
+    }),
     mdx(),
   ],
   markdown: {
