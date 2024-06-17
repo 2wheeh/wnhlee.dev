@@ -1,18 +1,18 @@
 // TODO: dynamically generate the PDF
-import resume from "@pages/about/resume_wonhee_lee.pdf";
+import resume from "@pages/about/resume-wonhee-lee.pdf";
 
 export function DownloadToPdf() {
   return (
     <a
       className="focus-outline flex whitespace-nowrap py-1 hover:opacity-75"
       href={resume}
-      download="resume_wonhee_lee.pdf"
+      download="resume-wonhee-lee.pdf"
       target="_blank"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         className="h-6 w-6 scale-90 fill-transparent stroke-current stroke-2"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
