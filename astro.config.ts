@@ -17,7 +17,7 @@ export default defineConfig({
     tailwind({
       applyBaseStyles: false,
     }),
-    react(),
+    react({ include: "**/react/*" }),
     sitemap(),
     AutoImport({
       imports: [
