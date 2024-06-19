@@ -1,0 +1,19 @@
+---
+// TODO: integrate wtih twoslash, apply common transformers
+import "@styles/code.css";
+import { codeToHtml } from "shiki";
+
+export interface Props {
+  lang: string;
+  code: string;
+}
+
+const { lang, code } = Astro.props;
+
+const html = await codeToHtml(code, {
+  lang,
+  themes: { dark: "vitesse-dark", light: "vitesse-light" },
+});
+---
+
+<div id="my-shiki" set:html={html} />

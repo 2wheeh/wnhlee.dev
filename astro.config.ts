@@ -24,6 +24,9 @@ export default defineConfig({
         {
           "./src/components/react/Stackblitz.tsx": ["StackBlitz"],
         },
+        {
+          "./src/components/Code.astro": [["default", "Code"]],
+        },
       ],
     }),
     mdx(),
