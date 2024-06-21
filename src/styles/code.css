@@ -1,9 +1,31 @@
 html[data-theme="dark"] #my-shiki .shiki,
 html[data-theme="dark"] #my-shiki .shiki span {
   color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
   /* Optional, if you also want font styles */
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
   text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+html[data-theme="dark"] #my-shiki .shiki,
+html[data-theme="dark"] #my-shiki pre:not(.has-highlighted) > code > span {
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+#my-shiki pre.has-highlighted > code > span:not(.highlighted) {
+  opacity: 0.5;
+}
+
+#my-shiki pre.has-highlighted:hover > code > span:not(.highlighted) {
+  opacity: 1;
+}
+
+/* TODO: adjust witdh to stretch properly */
+#my-shiki code .highlighted {
+  background-color: var(--highlight-background);
+  transition: background-color 0.5s;
+  margin: 0 -24px;
+  padding: 0 24px;
+  min-width: calc((100% + 40px));
+  display: inline-block;
 }
