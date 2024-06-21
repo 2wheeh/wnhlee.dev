@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import sdk from "@stackblitz/sdk";
 
 export interface StackBlitzProps {
@@ -11,6 +11,9 @@ export interface StackBlitzProps {
   clickToLoad?: boolean;
 }
 
+let nextId = 0;
+const ID_PREFIX = "stackblitz-embed-";
+
 export default function StackBlitzImpl({
   id,
   file,
@@ -20,8 +23,10 @@ export default function StackBlitzImpl({
   theme = "dark",
   clickToLoad = false,
 }: StackBlitzProps) {
+  const elementIdRef = useRef(`${ID_PREFIX}${nextId++}`);
+
   useEffect(() => {
-    sdk.embedGithubProject("stackblitz-embed", id, {
+    sdk.embedGithubProject(elementIdRef.current, id, {
       forceEmbedLayout: true,
       openFile: file,
       view,
@@ -33,5 +38,5 @@ export default function StackBlitzImpl({
     });
   }, []);
 
-  return <div id="stackblitz-embed" />;
+  return <div id={elementIdRef.current} />;
 }
