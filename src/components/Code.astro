@@ -2,6 +2,7 @@
 // TODO: integrate wtih twoslash, apply common transformers
 import "@styles/code.css";
 import { codeToHtml } from "shiki";
+import { transformerNotationHighlight } from "@shikijs/transformers";
 
 export interface Props {
   lang: string;
@@ -13,6 +14,7 @@ const { lang, code } = Astro.props;
 const html = await codeToHtml(code, {
   lang,
   themes: { dark: "vitesse-dark", light: "vitesse-light" },
+  transformers: [transformerNotationHighlight()],
 });
 ---
 
