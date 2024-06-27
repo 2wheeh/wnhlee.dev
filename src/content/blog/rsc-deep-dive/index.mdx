@@ -1,10 +1,10 @@
 ---
 author: wonhee
-pubDatetime: 2024-06-15T10:16:55.000+09:00
+pubDatetime: 2024-06-26T10:16:55.000+09:00
 modDatetime:
 title: Nextjs 앱라우터 이해해보기
 pinned: false
-draft: true
+# draft: true
 tags:
   - RSC
   - react
@@ -174,7 +174,7 @@ Hello␍␊
 
 참고로 두 헤더를 동시에 적용할 수는 없다. `Content-Length` 가 무시된다.
 
-> "Messages MUST NOT include both a Content-Length header field and a non-identity transfer-coding. If the message does include a non-identity transfer-coding, the Content-Length MUST be ignored." - [RFC 2616](https://greenbytes.de/tech/webdav/rfc2616.html#rfc.section.4.4.p.5)
+> "Messages MUST NOT include both a Content-Length header field and a non-identity transfer-coding. If the message does include a non-identity transfer-coding, the Content-Length MUST be ignored." <br/> - [RFC 2616](https://greenbytes.de/tech/webdav/rfc2616.html#rfc.section.4.4.p.5)
 
 ## Nextjs 에서의 Streaming
 
@@ -217,7 +217,7 @@ export default async function Home() {
 
 ![invert || fallback](./fallback.png)
 
-브라우저의 네트워크 > 응답 탭을 가보면,
+브라우저의 `네트워크 > 응답` 탭을 가보면,
 
 \<MyComponent/> chunk 가 도착하기 전까지 화면에 보여지고 있는 html 문서가 있다.
 
@@ -225,7 +225,7 @@ import streamHtml1 from "./streamHtml1.html?raw";
 
 <Code code={streamHtml1} lang="html" />
 
-모던 브라우저들은 유효하지 않은 html 을 받아도, 에러를 띄우지 않고 최선을 다해서 렌더링한다.
+브라우저들은 유효하지 않은 html 을 받아도, 에러를 띄우지 않고 최선을 다해서 렌더링한다.
 
 > One of the important maxims of computer programming is: "Be conservative in what you produce; be liberal in what you accept."
 >
@@ -278,7 +278,7 @@ import streamHtml2 from "./streamHtml2.html?raw";
 
 어떤 구조인 거지?
 
-## SSR 서버
+## SPA + SSR
 
 React팀의 Dan Abramovic의 [아티클](https://github.com/reactwg/server-components/discussions/5)을 참고해보자.
 
@@ -286,16 +286,18 @@ React팀의 Dan Abramovic의 [아티클](https://github.com/reactwg/server-compo
 
 _Dan의 아티클의 마지막 예제에서 에러를 수정한 버전_
 
-RSC 서버를 최소한의 요구사항으로 간단하게 구현한 예제다.
+RSC 지원을 위한 SSR 서버를 최소한의 요구사항으로 구현한 예제다.
 
-예제에서는 페이지 첫 로드의 경우와 앱 내에서 페이지 이동이 일어난 경우를 나눠서 처리한다.
+예제는 1.페이지 첫 로드의 경우와 2.앱 내에서 페이지 이동이 일어난 경우를 나눠서 처리한다.
 
 - 첫 로드: JSX를 HTML 마크업 문자열로 렌더링한 결과를 응답받는다.
 - 앱 내에서 페이지 이동: JSX를 응답받아서 DOM에 업데이트한다.
 
 먼저 클라이언트의 동작을 살펴보면,
 
-첫 로드는 브라우저가 기본 동작대로 보낸 해당 url에 대한 요청으로 받은 응답을 렌더링한다.
+### 첫 로드 시 클라이언트 동작
+
+첫 로드시에는 브라우저가 기본 동작대로 해당 url에 대한 요청을 보낸 후 응답으로 받은 html을 DOM에 반영한다.
 
 - 서버에서 html 마크업을 랜더링해서 보내준다.
 - 보낼 때, 렌더링에 사용한 JSX 객체를 document에 serialize해서 넣어준다.
@@ -305,7 +307,9 @@ import hydrate from "./hydrate.js?raw";
 
 <Code code={hydrate} lang="js" />
 
-앱 내에서 페이지를 이동하는 경우는 기본 동작을 가로챈다.
+### 페이지 이동 시 클라이언트 동작
+
+앱 내에서 페이지를 이동하는 경우는 브라우저의 기본 동작을 가로챈다.
 
 import intercept from "./intercept.js?raw";
 
@@ -317,43 +321,87 @@ import navigate from "./navigate.js?raw";
 
 <Code code={navigate} lang="js" />
 
+즉, 클라이언트에서는 SPA의 동작을 위해
+
+- 페이지 이동 기본 동작을 가로채고
+- 서버에서 해당 경로에 해당하는 컴포넌트 JSX를 받아서
+- DOM에 업데이트한다.
+
+DOM에 업데이트하는 과정을 React가 수행한다. 이 덕분에, 공용으로 사용하는 컴포넌트의 경우 상태를 유지하게 된다. (예제의 상단 인풋에 값을 입력하고 페이지를 이동해보면 유지되는 걸 확인 가능)
+
+---
+
+그럼 서버에서는 각 경우에 따른 요청을 어떻게 처리할까?
+
+서버는 SSR 서버와 RSC 서버로 나뉜다.
+
+- SSR 서버: RSC 서버에서 받은 JSX를 그대로 응답하거나, HTML 마크업 문자열로 렌더링해서 응답해주는 서버
+- RSC 서버: 컴포넌트의 로직을 연산해서 JSX를 응답해주는 서버
+
+### 첫 로드 시 서버 동작
+
 먼저, 페이지 첫 로드의 경우:
 
-- 브라우저가 url 접근하면서 SSR 서버에게 보낸 페이지 요청을 보낸다.
-- 요청을 받은 SSR 서버는 페이지 전체를 렌더링해서 응답한다.
+- 브라우저가 url 접근하면서 SSR 서버에게 페이지 요청을 보낸다.
+- 요청을 받은 SSR 서버는 페이지 전체를 HTML 문자열로 렌더링해서 응답한다.
 
 import initialResponse from "./initialResponse.js?raw";
 
 <Code code={initialResponse} lang="js" />
 
-- SSR 서버에서는 RSC 서버에게 컴포넌트 JSX에 해당하는 JSON 객체를 응답받는다.
-- `renderToString`은 그 객체를 받아서 HTML 마크업 문자열로 반환하고, 이를 클라이언트에게 응답한다.
+- SSR 서버가 RSC 서버에게 컴포넌트 JSX에 해당하는 JSON 객체를 응답받는다.
+- 이 객체를 받아서 `renderToString`가 HTML 마크업 문자열로 변환하고, 이를 클라이언트에게 응답한다.
 
-RSC 서버에서는 요청에 따라 해당 경로의 컴포넌트 함수를 실행해서 JSX를 반환한다.
+RSC 서버에서는 요청에 따라 해당 경로의 컴포넌트들을 연산해서 JSX를 반환한다:
+
+\<Router /> 를 \<html> ~ \</html> 에 해당하는 객체로 변환
 
 import rscServer from "./rscServer.js?raw";
 
 <Code code={rscServer} lang="js" />
 
-서버에서는
+### 페이지 이동 시 서버 동작
 
-서버에서 ?jsx 가 붙어서 요청이 들어오면 컴포넌트를 렌더링해서 보내줌
+페이지 이동 시에는 `?jsx` 가 붙어서 요청이 들어온다.
+
+이 경우 RSC 서버에서 응답받은 JSX 객체를 그대로 내려준다.
+
+import ssrOnPageMove from "./ssrOnPageMove.js?raw";
+
+<Code code={ssrOnPageMove} lang="js" />
+
+정리해보면 다음과 같다:
+
+최초 로드 시에는
+
+- `/` 에 대한 React tree 에 해당하는 JSX 객체를 RSC 서버가 SSR 서버에게 보냄
+- SSR 서버에서는 이 객체를 HTML 마크업 문자열로 변환해서 브라우저에 응답
 
 ![invert || initial-load](./initial-load.png)
 
+앱 내에서 페이지 이동 시에는
+
+- 브라우저에서 `/어떤경로` 대신 `/어떤경로?jsx` 로 요청을 보냄
+- RSC 서버에서는 `/어떤경로`의 JSX 객체를 SSR 서버에게 응답
+- SSR 서버에서는 이 객체를 그대로 브라우저에 응답
+- 브라우저에서 이 객체를 리액트가 diffing 해서 DOM에 반영
+
 ![invert || subsequent-navigation](./subsequent-navigation.png)
 
-astro 메인테이너가 React summit 에서 발표한 예제인데, dan edition 브랜치를 보면 이 예제를 준비하면서 dan과 RSC를 스터디하 내용도 있다(유튜브 링크)
+실제 RSC 구현에서는 위에서 살펴본 Streaming을 통해 컴포넌트 단위로 전송된다. 그리고 RSC 레이어를 React 패키지 내부에서 처리한다.
+
+---
+
+아래는 astro 메인테이너가 React summit 에서 Dan의 아티클과 비슷한 주제로 발표하며 사용한 예제인데,
+
+- RSC server를 별도로 두는 대신 React 내부에 추상화된 `ReactDOMServer`를 사용한다.
+- 브라우저의 기본 동작을 가로채는 로직은 React의 `createFromFetch` 를 사용한다.
+- 실제 RSC 구현체의 `renderToReacableStream`을 사용해서 Streaming을 지원하고
+- 여기에 Client Component 에 대한 처리를 추가한 버전이다.
 
 <StackBlitz id="2wheeh/simple-rsc" file="server.js" clickToLoad client:load />
 
-클라이언트 컴포넌트, Suspense, 컴포넌트 단위 페칭을 위한 api를 적용한 버전
-
-RSC server 를 react 내부의 `ReactDOMServer` api를 사용해서 streaming까지 지원하고,
-
-Client Component 에 대한 처리
-
-nextjs 의 app router는 여기에 캐싱, 최적화, 미들웨어 등 여러가지 기능을 추가한 인터페이스를 지원하는 방식인 것.
+Nextjs 의 앱라우터는 이런 구조에서 캐싱, 최적화, 미들웨어 등 여러기능을 지원하는 더 고도로 추상화된 프레임워크인 것이다.
 
 ## 참고
 

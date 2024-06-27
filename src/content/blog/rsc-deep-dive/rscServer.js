@@ -45,7 +45,7 @@ async function renderJSXToClientJSX(jsx) {
         const Component = jsx.type; // [!code highlight]
         const props = jsx.props; // [!code highlight]
         const returnedJsx = await Component(props); // [!code highlight]
-        // 자식 컴포넌트 까지 모두 변환하기 위해서, 재귀적으로 처리 // [!code highlight]
+        // 재귀적으로 자식 컴포넌트까지 모두 처리 // [!code highlight]
         return renderJSXToClientJSX(returnedJsx); // [!code highlight]
       } else throw new Error("Not implemented.");
     } else {
