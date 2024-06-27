@@ -22,6 +22,10 @@ html[data-theme="dark"] #my-shiki pre:not(.has-highlighted) > code > span {
   flex: 1;
 }
 
+#my-shiki span:empty:before {
+  content: "\feff"; /* ZERO WIDTH NO-BREAK SPACE */
+}
+
 #my-shiki pre.has-highlighted > code > span:not(.highlighted) {
   opacity: 0.5;
 }
