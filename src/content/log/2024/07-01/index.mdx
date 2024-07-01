@@ -1,0 +1,157 @@
+---
+author: wonhee
+pubDatetime: 2024-07-01T10:34:49.000+09:00
+modDatetime:
+title: "2024-07-01"
+pinned: true
+# draft: true
+# tags:
+#   -
+description: React Comopnent Type, Children, styled-components $ prefix
+---
+
+# React Component Type
+
+JSX 코드는 트랜스파일링을 거쳐서 `type`, `props`, `key` 프로퍼티를 갖는 객체로 변환된다.
+
+https://babeljs.io/docs/babel-plugin-transform-react-jsx
+
+정확히는 JSX 코드가 `createElement`, `jsx` 함수 호출로 변환된다.
+
+그 결과로 반환된 객체가 `ReactElement` 타입이다.
+
+### 트랜스파일 전
+
+import input from "./in.js?raw";
+
+<Code code={input} lang="js" />
+
+### 트랜스파일 후
+
+import output from "./out.js?raw";
+
+<Code code={output} lang="js" />
+
+혹은
+
+import outputClassic from "./out-classic.js?raw";
+
+<Code code={outputClassic} lang="js" />
+
+## ReactElement
+
+{/* prettier-ignore-start */}
+```ts twoslash
+import { ReactNode, Component } from "react";
+// ---cut---
+interface ReactElement<
+  P = any,
+  T extends string | JSXElementConstructor<any> = string | JSXElementConstructor<any>,
+> {
+  type: T;
+  props: P;
+  key: string | null;
+}
+
+type JSXElementConstructor<P> =
+  | ((props: P) => ReactNode) // Function Component
+  | (new (props: P) => Component<any, any>); // Class Component
+```
+{/* prettier-ignore-end */}
+
+`ReactElement`: JSX로 생성된 리액트 Element 객체 타입
+
+## JSX.Element
+
+```ts twoslash {6}
+import React from "react";
+// ---cut---
+declare global {
+  /**
+   * @deprecated Use `React.JSX` instead of the global `JSX` namespace.
+   */
+  namespace JSX {
+    interface Element extends React.ReactElement<any, any> {}
+    interface ElementClass extends React.Component<any> {
+      render(): React.ReactNode;
+    }
+  }
+}
+```
+
+`JSX.Element`: JSX 코드로 생성된 객체 타입
+
+`JSX`는 프레임워크와 무관한 문법으로 프레임워크 마다 다르게 구현된다.
+
+리액트에서는 `JSX.Element`를 `ReactElement<any, any>`로 정의함
+
+## ReactNode
+
+```ts twoslash
+import { ReactElement, ReactPortal } from "react";
+interface DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES {}
+
+// ---cut---
+type ReactNode =
+  | ReactElement
+  | string
+  | number
+  | Iterable<ReactNode>
+  | ReactPortal
+  | boolean
+  | null
+  | undefined
+  | DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES];
+```
+
+`ReactNode`는 리액트가 렌더링할 수 있는 모든 것을 의미함.
+
+export const example = `<div> // <- ReactElement
+  <Component> // <- ReactElement
+    {condition && 'text'} // <- ReactNode
+  </Component>
+</div>`;
+
+<Code code={example} lang="js" />
+
+- 클래스 컴포넌트 `render` 메서드의 리턴 타입도 `ReactNode`
+- `children` prop도 `ReactNode`
+
+# React Children
+
+children은 `ReactNode`로 다양한 타입을 가질 수 있음
+
+즉 배열이 아닌 경우들이 존재함.
+
+이를 처리하기 위해 `React.Children` API를 제공함
+
+`Children`은 타입이 아니므로 임포트할 때 type 키워드로 임포트하지 않도록 주의
+
+```tsx twoslash
+import { Children, ReactNode } from "react";
+
+function ReversedList({ children }: { children: ReactNode }) {
+  const result = Children.toArray(children);
+  result.reverse();
+  return result;
+}
+
+export default function App() {
+  return (
+    <ReversedList>
+      <p>This is the first item.</p>
+      <p>This is the second item.</p>
+      <p>This is the third item.</p>
+    </ReversedList>
+  );
+}
+```
+
+![inverted || reversed](./reversed.png)
+
+# StyledComponent $ prefix
+
+$ prefix 를 붙이면 DOM에 전달되지 않고 `styled-components` 가 스타일 조작에만 사용하게 된다.
+
+- 스타일 조작을 위한 props를 명확하게 구분 가능
+- DOM에 전달되지 않아서 불필요한 속성이 렌더링되지 않음, 이로 인한 에러를 방지함
