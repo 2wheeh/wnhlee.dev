@@ -4,7 +4,7 @@ pubDatetime: 2024-07-02T14:46:02.000+09:00
 modDatetime:
 title: 함수형 컴포넌트 vs 클래스형 컴포넌트
 pinned: false
-draft: true
+# draft: true
 tags:
   - react
 description: 생명주기 메서드 대신 훅 쓰고 클래스 대신 함수 끝 아님?
@@ -14,57 +14,362 @@ description: 생명주기 메서드 대신 훅 쓰고 클래스 대신 함수 �
 
 ## 개요
 
-역사 원래 클래스형 ~
+리액트의 컴포넌트는 클래스형 컴포넌트와 함수형 컴포넌트 두 가지가 있다.
 
-함수형 ~
-자바스크립트 지원
-훅의 등장
+클래스형 컴포넌트가 주로 사용되다가, 훅의 등장 이후로는 사실상 함수형 컴포넌트가 표준으로 사용된다.
+
+이 둘의 차이점은 뭘까?
+
+단순히 문법적인 차이만 있는 것일까?
+
+문법적인 차이와 이로인해 달라진 동작을 알아보자.
 
 ## 클래스형 컴포넌트
 
-간단한 예시
+`Component` 클래스를 상송받아서 구현하는 방식이다.
+
+- `componentDidMount`, `componentWillUnmount` 같은 메서드를 통해 생명주기의 각 단계에 대한 로직을 구현한다.
+- `state`와 `props`를 클래스의 프로퍼티로 관리한다. 따라서 `this.state`, `this.props`를 통해 접근한다.
+- `state`를 조작할 때는 `this.setState`를 사용한다.
+
+```tsx twoslash
+import { Component } from "react";
+
+interface Props {
+  name: string;
+}
+
+interface State {
+  count: number;
+}
+
+export class MyClassComponent extends Component<Props, State> {
+  state = { count: 0 };
+
+  handleClick = () => {
+    this.setState({ count: this.state.count + 1 });
+  };
+
+  componentDidMount() {
+    console.log("Component did mount");
+  }
+
+  componentWillUnmount() {
+    console.log("Component will unmount");
+  }
+
+  render() {
+    return (
+      <div>
+        <p>props.name: {this.props.name}</p>
+        <p>state.count: {this.state.count}</p>
+        <button onClick={this.handleClick}>
+          <p>Increase</p>
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+import { MyClassComponent } from "./MyComponent";
+
+`<MyClassComponent name="wonhee" />`:
+
+<MyClassComponent name="wonhee" client:load />
 
 ## 함수형 컴포넌트
 
-간단한 예시
+함수형 컴포넌트에서는 생명주기를 다루고, 상태를 조작하기 위해 훅을 사용한다.
 
-이렇게 대체하면 끝 아님?
+```tsx twoslash
+import { useState, useEffect } from "react";
 
-## 함수형 컴포넌트는 클로저를 사용한다
+interface Props {
+  name: string;
+}
 
-클래스형 컴포넌트에서는 상태를 참조할 때 `this.state`을 사용한다.
+export function MyFunctionComponent({ name }: Props) {
+  const [count, setCount] = useState(0);
 
-반면 함수형 컴포넌트에서는 클로저를 사용한다.
+  useEffect(() => {
+    console.log("Component did mount");
+    return () => {
+      console.log("Component will unmount");
+    };
+  }, []);
 
-???
+  const handleClick = () => {
+    setCount(count + 1);
+  };
 
-primitive 한 상태의 경우 클래스형 컴포넌트에서는 항상 최신 값을 사용하지만 함수형 컴포넌트에서는 일종의 snapshot을 사용한다.
+  return (
+    <div>
+      <p>props.name: {name}</p>
+      <p>state.count: {count}</p>
+      <button onClick={handleClick}>
+        <p>Increase</p>
+      </button>
+    </div>
+  );
+}
+```
 
-뭔소리지?
+import { MyFunctionComponent } from "./MyComponent";
 
-다음 예시를 보자
+`<MyFunctionComponent name="wonhee" />`:
 
-primitive한 상태를 사용하는 비동기적인 이벤트 리스너 콜백이 대기중인 상태에서 상태가 변경되면,
+<MyFunctionComponent name="wonhee" client:load />
 
-클래스형 컴포넌트에서는 항상 최신 값을 사용하지만 함수형 컴포넌트에서는 클로저로 primitive 값을 참조하기 떄문에 변경된 값이 아닌 이벤트가 발생한 시점의 상태를 사용한다.
+> 음... 이렇게 대체하면 끝 아닌가?
 
-이벤트가 발생한 시점의 상태를 사용하는게 더 예측가능하고 안전하게 느껴진다.
+두 구현에서 놓치면 안되는 차이점이 하나있다.
 
-그러면 그냥 함수형 믿고 쓰면 되나?
+## 함수형 컴포넌트는 랜더링 시점의 값을 참조한다
 
-항상 최신값을 반영해야하는 경우는 어떤 경우일까?
+> Function components capture the rendered values. <br /> - Dan Abramov
+
+무슨 말이지?
+
+클래스형 컴포넌트에서는
+
+- 이벤트 핸들러와 상태들을 클래스의 필드에 선언했다.
+- 따라서 항상 `this` 를 통해 mutable 한 상태와 메서드를 참조한다.
+- 즉 항상 최신 값을 사용하게된다.
+
+함수형 컴포넌트에서는
+
+- 지역 변수로 정의 했다.
+- 따라서 렌더링 시점에 정의된 변수의 값을 참조하게 된다.
+- 즉 렌더링 시점의 값을 사용하게된다.
+
+다음 예시를 보자.
+
+```tsx twoslash
+import { Component } from "react";
+
+interface Props {
+  user: string;
+}
+
+// ---cut---
+
+class ProfilePage extends Component<Props> {
+  showMessage = () => {
+    alert("Followed " + this.props.user);
+  };
+
+  handleClick = () => {
+    setTimeout(this.showMessage, 3000);
+  };
+
+  render() {
+    return <button onClick={this.handleClick}>Follow</button>;
+  }
+}
+```
+
+```tsx twoslash
+interface Props {
+  user: string;
+}
+// ---cut---
+function ProfilePage({ user }: Props) {
+  const showMessage = () => {
+    alert("Followed " + user);
+  };
+
+  const handleClick = () => {
+    setTimeout(showMessage, 3000);
+  };
+
+  return <button onClick={handleClick}>Follow</button>;
+}
+```
+
+둘의 동작이 같을까?
+
+`Follow` 버튼을 누르고 알림이 뜨기전에 `user`를 변경해보자.
+
+import { Profile } from "./Profile";
+
+<Profile client:load />
+
+- 클래스 컴포넌트: 클릭 이벤트 이후 변경된 최신 값으로 알림이 뜬다.
+- 함수형 컴포넌트: 클릭 이벤트 발생 시점의 값으로 알림이 뜬다.
+
+클래스형 컴포넌트 구현에서는 `user` 값을 콜백 내부에서 `this.props.user`로 참조하므로 항상 최신 값을 사용하게 되는 것.
+
+함수형 컴포넌트에서는 함수가 실행되는 시점의 `user` 값을 참조해서 콜백에서 사용하고 있다.
+
+따라서 그 시점의 값을 캡처한다고 할 수 있다.
+
+두 구현이 실제로 동일하게 동작하려면 클래스형 컴포넌트에서도 `render` 메서드 내부에서 값을 캡처해야한다.
+
+```tsx twoslash {3 ,4, 9}
+import { Component } from "react";
+
+interface Props {
+  user: string;
+}
+
+// ---cut---
+class ProfilePage extends Component<Props> {
+  render() {
+    // Capture the props!
+    const props = this.props;
+
+    // Note: we are *inside render*.
+    // These aren't class methods.
+    const showMessage = () => {
+      alert("Followed " + props.user);
+    };
+
+    const handleClick = () => {
+      setTimeout(showMessage, 3000);
+    };
+
+    return <button onClick={handleClick}>Follow</button>;
+  }
+}
+```
+
+import { ProfileFixed } from "./Profile";
+
+<ProfileFixed client:load />
+
+이벤트가 발생한 시점의 상태를 사용하는게 더 예측가능하고 안정된 동작으로 느껴진다.
+
+그런데 반대로 함수형 컴포넌트의 콜백에서 항상 최신 값을 사용하고 싶은 경우엔 어떡하지?
+
+`useRef`를 활용하면 된다.
+
+`useRef`로 관리해서 콜백안에서 항상 최신 값을 참조할 수 있다.
+
+> A ref plays the same role as an instance field. <br /> - Dan Abramov
+
+`useRef` 는 함수형 컴포넌트에서 클래스형 컴포넌트의 인스턴스 필드와 같은 역할을 한다.
+
+함수보다 상위 스코프에 값을 저장하고, `useRef.current`를 통해 값을 읽는 방식으로 항상 최신 값을 참조할 수 있다.
+
+항상 최신 값을 읽어야 하는 경우를 예로 들어보자.
+
+대표적으로 스크롤이나 드래그같은 상호작용을 애니메이션으로 구현할 때, 이벤트 핸들러에서 항상 최신 값이 필요한 경우가 있다.
+
+import { Draggable, DraggableGood } from "./Draggable";
+
+<DraggableGood client:load />
+
+```tsx twoslash
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type TouchEvent,
+} from "react";
+
+function getTouchEventData(
+  e:
+    | globalThis.TouchEvent
+    | globalThis.MouseEvent
+    | TouchEvent<HTMLElement>
+    | MouseEvent<HTMLElement>
+) {
+  return "changedTouches" in e ? e.changedTouches[0] : e;
+}
+
+// ---cut---
+function Draggable({ containerWidth }: { containerWidth: number }) {
+  const [currentX, setCurrentX] = useState(0);
+  const [passedThreshold, setPassedThreshold] = useState(false);
+
+  const threshold = 0.3 * containerWidth;
+
+  const maxOffsetX = containerWidth - 72;
+  let initialOffsetX: number;
+  let touchStartX: number;
+
+  const onTouchStart = (
+    e: TouchEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>
+  ) => {
+    initialOffsetX = currentX;
+    touchStartX = getTouchEventData(e).clientX;
+
+    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("mousemove", onTouchMove);
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("mouseup", onTouchEnd);
+  };
+
+  const onTouchMove = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
+    const currentTouchX = getTouchEventData(e).clientX;
+    const swipeDiff = touchStartX - currentTouchX;
+    let newOffsetX = initialOffsetX - swipeDiff;
+    // ...
+
+    setCurrentX(newOffsetX);
+  };
+
+  const onTouchEnd = () => {
+    if (currentX > threshold) {
+      setPassedThreshold(true);
+    }
+
+    window.removeEventListener("touchmove", onTouchMove);
+    window.removeEventListener("mousemove", onTouchMove);
+    window.removeEventListener("touchend", onTouchEnd);
+    window.removeEventListener("mouseup", onTouchEnd);
+  };
+
+  return (
+    <div
+      onTouchStart={onTouchStart}
+      onMouseDown={onTouchStart}
+      className="h-14 w-14 rounded"
+      style={{
+        transform: `translateX(${currentX}px)`,
+        backgroundColor: passedThreshold ? "skyblue" : "beige",
+      }}
+    />
+  );
+}
+```
+
+## useStateRef
+
+`useStateRef`는 `useRef`를 `useState`와 조합해서 항상 최신값을 콜백에 반영하면서, 업데이트 시 리렌더를 트리거하는 커스텀 훅이다.
+
+`GSAP` 문서의 [useStateRef](https://gsap.com/resources/react-advanced/#usestateref):
+
+{/* prettier-ignore-start */}
+
+```ts twoslash
+import { useRef, useState, useCallback } from "react";
+import type { MutableRefObject } from "react";
+// ---cut---
+function useStateRef<T>(defaultValue: T): [T, (value: T) => void, MutableRefObject<T>] {
+  const [state, setState] = useState(defaultValue);
+  const ref = useRef(state);
+
+  const dispatch = useCallback((value: T) => {
+    ref.current = typeof value === "function" ? value(ref.current) : value;
+    setState(ref.current);
+  }, []);
+
+  return [state, dispatch, ref];
+}
+```
+
+{/* prettier-ignore-end */}
 
 나는 직접 슬라이더 구현할때
-
-어떻게 구현할 수 있을까
 
 useEffect
 
 애니메이션 ~ GSAP
 
 커스텀 훅으로 분리
-
-## useStateRef
 
 ## Reference
 
