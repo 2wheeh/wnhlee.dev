@@ -1,0 +1,439 @@
+---
+author: wonhee
+pubDatetime: 2024-07-05T14:46:02.000+09:00
+modDatetime:
+title: 함수형 컴포넌트 vs 클래스형 컴포넌트
+pinned: false
+# draft: true
+tags:
+  - react
+description: 생명주기 메서드 대신 훅 쓰고 클래스 대신 함수 끝 아님?
+---
+
+## Table of Contents
+
+## 개요
+
+리액트에는 클래스형과 함수형 두 가지의 컴포넌트가 있다.
+
+클래스형 컴포넌트가 주로 사용되다가, 훅의 등장 이후로 함수형 컴포넌트가 표준으로 사용된다.
+
+이 둘의 차이점은 뭘까?
+
+단순히 문법적인 차이만 있는 걸까?
+
+문법적인 차이와 이로인해 달라진 동작을 알아보자.
+
+## 클래스형 컴포넌트
+
+`Component` 클래스를 상속받아서 구현하는 방식이다.
+
+- `componentDidMount`, `componentWillUnmount` 같은 메서드를 통해 생명주기의 각 단계에 대한 로직을 구현한다.
+- `state`와 `props`를 클래스의 프로퍼티로 관리한다. 따라서 `this.state`, `this.props`를 통해 접근한다.
+- 함수들을 클래스의 메서드로 정의해서 사용한다.
+
+```tsx twoslash
+import { Component } from "react";
+
+interface Props {
+  name: string;
+}
+
+interface State {
+  count: number;
+}
+
+export class MyClassComponent extends Component<Props, State> {
+  state = { count: 0 };
+
+  handleClick = () => {
+    this.setState({ count: this.state.count + 1 });
+  };
+
+  componentDidMount() {
+    console.log("Component did mount");
+  }
+
+  componentWillUnmount() {
+    console.log("Component will unmount");
+  }
+
+  render() {
+    return (
+      <div>
+        <p>props.name: {this.props.name}</p>
+        <p>state.count: {this.state.count}</p>
+        <button onClick={this.handleClick}>
+          <p>Increase</p>
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+import { MyClassComponent } from "./MyComponent";
+
+`<MyClassComponent name="wonhee" />`:
+
+<MyClassComponent name="wonhee" client:load />
+
+## 함수형 컴포넌트
+
+함수형 컴포넌트에서는 생명주기를 다루고, 상태를 조작하기 위해 훅을 사용한다.
+
+```tsx twoslash
+import { useState, useEffect } from "react";
+
+interface Props {
+  name: string;
+}
+
+export function MyFunctionComponent({ name }: Props) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("Component did mount");
+    return () => {
+      console.log("Component will unmount");
+    };
+  }, []);
+
+  const handleClick = () => {
+    setCount(count + 1);
+  };
+
+  return (
+    <div>
+      <p>props.name: {name}</p>
+      <p>state.count: {count}</p>
+      <button onClick={handleClick}>
+        <p>Increase</p>
+      </button>
+    </div>
+  );
+}
+```
+
+import { MyFunctionComponent } from "./MyComponent";
+
+`<MyFunctionComponent name="wonhee" />`:
+
+<MyFunctionComponent name="wonhee" client:load />
+
+> 음... 이렇게 대체하면 끝 아닌가?
+
+두 구현에서 놓치면 안되는 차이점이 하나있다.
+
+## 함수형 컴포넌트는 랜더링 시점의 값을 참조한다
+
+> Function components capture the rendered values. <br /> - Dan Abramov
+
+무슨 말이지?
+
+클래스형 컴포넌트에서는
+
+- 이벤트 핸들러와 상태들을 클래스의 필드에 선언했다.
+- 따라서 `this` 를 통해 mutable 한 상태와 메서드를 참조한다.
+- 즉 항상 최신 값을 사용하게 된다.
+
+함수형 컴포넌트에서는
+
+- 이벤트 핸들러나 상태들을 함수 스코프의 지역 변수로 정의했다.
+- 따라서 렌더링 시점에 정의된 변수의 값을 참조하게 된다.
+- 즉 최신 값이 아닌 렌더링 시점의 값을 사용하게 된다.
+
+다음 예시를 보자.
+
+```tsx twoslash
+import { Component } from "react";
+
+interface Props {
+  user: string;
+}
+
+// ---cut---
+
+class ProfilePage extends Component<Props> {
+  showMessage = () => {
+    alert("Followed " + this.props.user);
+  };
+
+  handleClick = () => {
+    setTimeout(this.showMessage, 3000);
+  };
+
+  render() {
+    return <button onClick={this.handleClick}>Follow</button>;
+  }
+}
+```
+
+```tsx twoslash
+interface Props {
+  user: string;
+}
+// ---cut---
+function ProfilePage({ user }: Props) {
+  const showMessage = () => {
+    alert("Followed " + user);
+  };
+
+  const handleClick = () => {
+    setTimeout(showMessage, 3000);
+  };
+
+  return <button onClick={handleClick}>Follow</button>;
+}
+```
+
+둘의 동작이 같을까?
+
+`Follow` 버튼을 누르고 알림이 뜨기전에 `user`를 변경해보자.
+
+import { Profile } from "./Profile";
+
+<Profile client:load />
+
+- 클래스 컴포넌트: 클릭 이벤트 이후 변경된 최신 값으로 알림이 뜬다.
+- 함수형 컴포넌트: 클릭 이벤트 발생 시점의 값으로 알림이 뜬다.
+
+클래스형 컴포넌트 구현에서는 `user` 값을 콜백 내부에서 `this.props.user`로 참조하므로 항상 최신 값을 사용하게 되는 것.
+
+함수형 컴포넌트에서는 함수가 실행되는 시점의 `user` 값을 참조한다.
+
+따라서 그 시점의 값을 캡처한다고 할 수 있다.
+
+두 구현이 정말 동일하게 동작하려면 클래스형 컴포넌트에서도 `render` 메서드 내부에서 값을 캡처해야한다.
+
+```tsx twoslash {3 ,4, 9}
+import { Component } from "react";
+
+interface Props {
+  user: string;
+}
+
+// ---cut---
+class ProfilePage extends Component<Props> {
+  render() {
+    // Capture the props!
+    const props = this.props;
+
+    // Note: we are *inside render*.
+    // These aren't class methods.
+    const showMessage = () => {
+      alert("Followed " + props.user);
+    };
+
+    const handleClick = () => {
+      setTimeout(showMessage, 3000);
+    };
+
+    return <button onClick={handleClick}>Follow</button>;
+  }
+}
+```
+
+import { ProfileFixed } from "./Profile";
+
+<ProfileFixed client:load />
+
+자 이제 두 컴포넌트가 동일하게 동작한다.
+
+이벤트가 발생한 시점의 상태를 사용하는게 더 예측가능하고 안정된 동작으로 느껴진다.
+
+그런데 반대로 함수형 컴포넌트의 콜백에서 항상 최신 값을 사용하고 싶은 경우엔 어떡하지?
+
+`useRef`를 활용하면 된다.
+
+`useRef`로 관리해서 콜백안에서 항상 최신 값을 참조할 수 있다.
+
+> A ref plays the same role as an instance field. <br /> - Dan Abramov
+
+`useRef`는 함수형 컴포넌트에서 클래스형 컴포넌트의 인스턴스 필드와 같은 역할을 한다.
+
+함수보다 상위 스코프에 값을 저장하고, `useRef.current`를 통해 값을 읽는 방식으로 항상 최신 값을 참조할 수 있다.
+
+항상 최신 값을 읽어야 하는 예시를 하나 생각해보자.
+
+JSX에서 이벤트 핸들러를 등록하면 상태가 업데이트될 때 마다
+
+리액트가 새로운 핸들러를 등록하면서 새로운 상태값을 참조하므로 문제가 없다.
+
+하지만 복잡한 UI의 경우엔 직접 DOM의 `window`나 `document`에 이벤트를 등록할 때가 있다.
+
+아래는 드래그 기능을 간단하게 구현해본 컴포넌트 예시다. 드래그가 끝난 시점의 위치가 threshold를 넘었는 지 판단해서 색을 변경한다. (그러고 싶다.)
+
+지금 예시에서는 간단하게 색을 변경하지만, 스크롤 내부에서 특정 위치로 이동시키는 로직으로 변경한다면 Swiper같은 동작을 구현할 수 있다.
+
+```tsx twoslash {2, 16-17, 30, 44}
+import { useRef, useState, type MouseEvent, type TouchEvent } from "react";
+
+function getTouchEventData(
+  e:
+    | globalThis.TouchEvent
+    | globalThis.MouseEvent
+    | TouchEvent<HTMLElement>
+    | MouseEvent<HTMLElement>
+) {
+  return "changedTouches" in e ? e.changedTouches[0] : e;
+}
+
+interface Props {
+  threshold: number;
+  maxOffsetX: number;
+}
+
+// ---cut---
+function Draggable({ threshold, maxOffsetX }: Props) {
+  const [currentX, setCurrentX] = useState(0);
+  const [passedThreshold, setPassedThreshold] = useState(false);
+
+  let initialOffsetX: number;
+  let touchStartX: number;
+
+  const onTouchStart = (
+    e: TouchEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>
+  ) => {
+    initialOffsetX = currentX;
+    touchStartX = getTouchEventData(e).clientX;
+
+    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("mousemove", onTouchMove);
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("mouseup", onTouchEnd);
+  };
+
+  const onTouchMove = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
+    const currentTouchX = getTouchEventData(e).clientX;
+    const swipeDiff = touchStartX - currentTouchX;
+    let newOffsetX = initialOffsetX - swipeDiff;
+    // ...
+
+    setCurrentX(newOffsetX);
+  };
+
+  const onTouchEnd = () => {
+    setPassedThreshold(currentX > threshold);
+
+    window.removeEventListener("touchmove", onTouchMove);
+    window.removeEventListener("mousemove", onTouchMove);
+    window.removeEventListener("touchend", onTouchEnd);
+    window.removeEventListener("mouseup", onTouchEnd);
+  };
+
+  return (
+    <div
+      onTouchStart={onTouchStart}
+      onMouseDown={onTouchStart}
+      style={{
+        transform: `translateX(${currentX}px)`,
+        backgroundColor: passedThreshold ? "skyblue" : "beige",
+      }}
+    />
+  );
+}
+```
+
+지금 코드에서는 `touchstart` 이벤트가 발생할 때, `currentX` 값을 캡처한 콜백을 `window`의 `touchend` 핸들러로 등록한다.
+
+`<Draggable threshold={containerWidth * 0.3} maxOffsetX={containerWidth} />`:
+
+import { Draggable, DraggableGood } from "./Draggable";
+
+<Draggable client:load />
+
+대충 1/3 지점을 넘겨서 드래그하면, 드래그가 끝난 위치를 기준으로 색이 바뀌어야 하는데
+
+드래그를 시작한 위치를 기준으로 색이 바뀌고 있다.
+
+`useRef`를 활용해서, 드래그를 종료한 시점의 최신 값을 읽도록 변경해보자.
+
+## useStateRef
+
+`useStateRef`는 `useRef`를 `useState`와 조합해서 `ref.current`를 통해 최신값을 읽을 수 있고, 업데이트 시 리렌더를 트리거하는 커스텀 훅이다.
+
+`GSAP` 문서의 [useStateRef](https://gsap.com/resources/react-advanced/#usestateref):
+
+{/* prettier-ignore-start */}
+
+```ts twoslash
+import { useRef, useState, useCallback } from "react";
+import type { MutableRefObject } from "react";
+// ---cut---
+function useStateRef<T>(defaultValue: T): [T, (value: T) => void, MutableRefObject<T>] {
+  const [state, setState] = useState(defaultValue);
+  const ref = useRef(state);
+
+  const dispatch = useCallback((value: T) => {
+    ref.current = typeof value === "function" ? value(ref.current) : value;
+    setState(ref.current);
+  }, []);
+
+  return [state, dispatch, ref];
+}
+```
+
+`useState`를 `useStateRef`로 바꾸고 `touchend`에 등록하는 콜백 내부에서 `ref.current`를 참조하도록 수정해보자.
+
+{/* prettier-ignore-end */}
+
+```tsx twoslash {2, 6}
+import { useRef, useState, useCallback, type MutableRefObject } from "react";
+
+function useStateRef<T>(
+  defaultValue: T
+): [T, (value: T) => void, MutableRefObject<T>] {
+  const [state, setState] = useState(defaultValue);
+  const ref = useRef(state);
+
+  const dispatch = useCallback((value: T) => {
+    ref.current = typeof value === "function" ? value(ref.current) : value;
+    setState(ref.current);
+  }, []);
+
+  return [state, dispatch, ref];
+}
+
+interface Props {
+  threshold: number;
+  maxOffsetX: number;
+}
+
+// ---cut---
+function Draggable({ threshold, maxOffsetX }: Props) {
+  const [currentX, setCurrentX, currentXRef] = useStateRef(0);
+  const [passedThreshold, setPassedThreshold] = useState(false);
+  // ...
+  const onTouchEnd = () => {
+    setPassedThreshold(currentXRef.current > threshold);
+    // ...
+  };
+  // ---cut-after---
+  return <></>;
+}
+```
+
+<DraggableGood client:load />
+
+잘된다!
+
+이 구현외에도 `useRef`를 활용한 다양한 커스텀 훅으로 이 문제를 해결할 수 있다.
+
+핵심은 `useRef`를 활용해서, DOM에 이벤트 등록을 새로하지 않고도 최신 값을 참조하는 것.
+
+---
+
+## 결론
+
+1. 클래스형 컴포넌트에서 클래스 필드에 정의한 값들은 `this`를 통해 항상 최신 값을 읽어온다.
+2. 함수형 컴포넌트에서는 렌더링 시점의 값을 캡쳐한다.
+3. 함수형 컴포넌트에서 비슷한 동작을 위해서는 `useRef`를 활용하면 된다.
+4. 컴포넌트 라이브러리들을 보다보면 이를 위한 커스텀 훅들을 자주 보게된다.
+5. 당황하지말고 콜백에서 참조하는 값이 어떤 시점의 값인지 잘 파악해보자.
+
+## Reference
+
+- [How Are Function Components Different from Classes?](https://overreacted.io/how-are-function-components-different-from-classes/)
+- [React hooks: get the current state, back to the future](https://dev.to/scastiel/react-hooks-get-the-current-state-back-to-the-future-3op2)
+- [Advanced techniques - GSAP](https://gsap.com/resources/react-advanced/#usestateref)
