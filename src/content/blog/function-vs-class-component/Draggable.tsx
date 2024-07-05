@@ -81,8 +81,6 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
   return (
     <div
       ref={draggableRef}
-      // onTouchStart={onTouchStart}
-      // onMouseDown={onTouchStart}
       className="h-14 w-14 rounded border border-skin-accent hover:cursor-pointer"
       style={{
         transform: `translateX(${currentX}px)`,
