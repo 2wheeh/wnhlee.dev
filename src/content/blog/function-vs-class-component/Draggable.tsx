@@ -93,7 +93,9 @@ export function Draggable() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      <DraggableInner containerWidth={containerWidth} />
+      {containerWidth > 0 && (
+        <DraggableInnerGood containerWidth={containerWidth} />
+      )}
     </div>
   );
 }
@@ -159,14 +161,14 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
 }
 
 export function DraggableGood() {
-  const [containerWith, setcontainerWith] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
 
     const { width } = wrapperRef.current.getBoundingClientRect();
-    setcontainerWith(width);
+    setContainerWidth(width);
   }, [wrapperRef.current]);
 
   return (
@@ -174,7 +176,9 @@ export function DraggableGood() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      <DraggableInnerGood containerWidth={containerWith} />
+      {containerWidth > 0 && (
+        <DraggableInnerGood containerWidth={containerWidth} />
+      )}
     </div>
   );
 }
