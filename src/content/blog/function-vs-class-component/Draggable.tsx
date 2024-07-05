@@ -20,6 +20,7 @@ function getTouchEventData(
 function DraggableInner({ containerWidth }: { containerWidth: number }) {
   const [currentX, setCurrentX] = useState(0);
   const [passedThreshold, setPassedThreshold] = useState(false);
+  const draggableRef = useRef<HTMLDivElement>(null);
 
   const threshold = 0.3 * containerWidth;
 
@@ -27,9 +28,7 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
   let initialOffsetX: number;
   let touchStartX: number;
 
-  const onTouchStart = (
-    e: TouchEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>
-  ) => {
+  const onTouchStart = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
     initialOffsetX = currentX;
     touchStartX = getTouchEventData(e).clientX;
 
@@ -38,6 +37,21 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
     window.addEventListener("touchend", onTouchEnd);
     window.addEventListener("mouseup", onTouchEnd);
   };
+
+  // https://github.com/withastro/astro/issues/10851
+  // onTouchStart가 Safari, IOS에서 hydrate 되지 않는 Astro 이슈.
+  // 직접 DOM에 이벤트 추가해야함
+  useEffect(() => {
+    if (!draggableRef.current) return;
+    draggableRef.current.addEventListener("touchstart", onTouchStart);
+    draggableRef.current.addEventListener("mousedown", onTouchStart);
+
+    return () => {
+      if (!draggableRef.current) return;
+      draggableRef.current.removeEventListener("touchstart", onTouchStart);
+      draggableRef.current.removeEventListener("mousedown", onTouchStart);
+    };
+  }, [onTouchStart]);
 
   const onTouchMove = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
     const currentTouchX = getTouchEventData(e).clientX;
@@ -66,8 +80,7 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
 
   return (
     <div
-      onTouchStart={onTouchStart}
-      onMouseDown={onTouchStart}
+      ref={draggableRef}
       className="h-14 w-14 rounded border border-skin-accent hover:cursor-pointer"
       style={{
         transform: `translateX(${currentX}px)`,
@@ -93,7 +106,7 @@ export function Draggable() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      <DraggableInner containerWidth={containerWidth} />
+      {containerWidth > 0 && <DraggableInner containerWidth={containerWidth} />}
     </div>
   );
 }
@@ -101,6 +114,7 @@ export function Draggable() {
 function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
   const [currentX, setCurrentX, currentXRef] = useStateRef(0);
   const [passedThreshold, setPassedThreshold] = useState(false);
+  const draggableRef = useRef<HTMLDivElement>(null);
 
   const threshold = 0.3 * containerWidth;
 
@@ -108,9 +122,7 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
   let initialOffsetX: number;
   let touchStartX: number;
 
-  const onTouchStart = (
-    e: TouchEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>
-  ) => {
+  const onTouchStart = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
     initialOffsetX = currentX;
     touchStartX = getTouchEventData(e).clientX;
 
@@ -119,6 +131,21 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
     window.addEventListener("touchend", onTouchEnd);
     window.addEventListener("mouseup", onTouchEnd);
   };
+
+  // https://github.com/withastro/astro/issues/10851
+  // onTouchStart가 Safari, IOS에서 hydrate 되지 않는 Astro 이슈.
+  // 직접 DOM에 이벤트 추가해야함
+  useEffect(() => {
+    if (!draggableRef.current) return;
+    draggableRef.current.addEventListener("touchstart", onTouchStart);
+    draggableRef.current.addEventListener("mousedown", onTouchStart);
+
+    return () => {
+      if (!draggableRef.current) return;
+      draggableRef.current.removeEventListener("touchstart", onTouchStart);
+      draggableRef.current.removeEventListener("mousedown", onTouchStart);
+    };
+  }, [onTouchStart]);
 
   const onTouchMove = (e: globalThis.TouchEvent | globalThis.MouseEvent) => {
     const currentTouchX = getTouchEventData(e).clientX;
@@ -147,8 +174,7 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
 
   return (
     <div
-      onTouchStart={onTouchStart}
-      onMouseDown={onTouchStart}
+      ref={draggableRef}
       className="h-14 w-14 rounded border border-skin-accent hover:cursor-pointer"
       style={{
         transform: `translateX(${currentX}px)`,
@@ -159,14 +185,14 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
 }
 
 export function DraggableGood() {
-  const [containerWith, setcontainerWith] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
 
     const { width } = wrapperRef.current.getBoundingClientRect();
-    setcontainerWith(width);
+    setContainerWidth(width);
   }, [wrapperRef.current]);
 
   return (
@@ -174,7 +200,9 @@ export function DraggableGood() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      <DraggableInnerGood containerWidth={containerWith} />
+      {containerWidth > 0 && (
+        <DraggableInnerGood containerWidth={containerWidth} />
+      )}
     </div>
   );
 }
