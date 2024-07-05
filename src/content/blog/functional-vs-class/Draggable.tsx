@@ -78,14 +78,14 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
 }
 
 export function Draggable() {
-  const [containerWith, setcontainerWith] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
 
     const { width } = wrapperRef.current.getBoundingClientRect();
-    setcontainerWith(width);
+    setContainerWidth(width);
   }, [wrapperRef.current]);
 
   return (
@@ -93,7 +93,7 @@ export function Draggable() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      <DraggableInner containerWidth={containerWith} />
+      <DraggableInner containerWidth={containerWidth} />
     </div>
   );
 }
