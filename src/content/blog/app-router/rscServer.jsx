@@ -10,14 +10,16 @@ createServer(async (req, res) => {
   }
 }).listen(8081);
 
-async function sendJSX(res, jsx) { // [!code highlight]
+async function sendJSX(res, jsx) {
+  // [!code highlight]
   const clientJSX = await renderJSXToClientJSX(jsx); // [!code highlight]
   const clientJSXString = JSON.stringify(clientJSX, stringifyJSX);
   res.setHeader("Content-Type", "application/json");
   res.end(clientJSXString);
 }
 
-async function renderJSXToClientJSX(jsx) { // [!code highlight]
+async function renderJSXToClientJSX(jsx) {
+  // [!code highlight]
   if (
     typeof jsx === "string" ||
     typeof jsx === "number" ||
@@ -37,7 +39,8 @@ async function renderJSXToClientJSX(jsx) { // [!code highlight]
           ...jsx,
           props: await renderJSXToClientJSX(jsx.props),
         };
-      } else if (typeof jsx.type === "function") { // [!code highlight]
+      } else if (typeof jsx.type === "function") {
+        // [!code highlight]
         // 우리가 작성한 리액트 컴포넌트들 (ex. <Footer />) // [!code highlight]
         const Component = jsx.type; // [!code highlight]
         const props = jsx.props; // [!code highlight]
