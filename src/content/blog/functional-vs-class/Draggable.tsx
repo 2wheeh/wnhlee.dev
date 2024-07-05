@@ -21,7 +21,7 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
   const [currentX, setCurrentX] = useState(0);
   const [passedThreshold, setPassedThreshold] = useState(false);
 
-  const threshold = 0.5 * containerWidth;
+  const threshold = 0.3 * containerWidth;
 
   const maxOffsetX = containerWidth - 72;
   let initialOffsetX: number;
@@ -56,9 +56,7 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
   };
 
   const onTouchEnd = () => {
-    if (currentX > threshold) {
-      setPassedThreshold(true);
-    }
+    setPassedThreshold(currentX > threshold);
 
     window.removeEventListener("touchmove", onTouchMove);
     window.removeEventListener("mousemove", onTouchMove);
@@ -70,7 +68,7 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
     <div
       onTouchStart={onTouchStart}
       onMouseDown={onTouchStart}
-      className="h-14 w-14 rounded"
+      className="h-14 w-14 rounded border border-skin-accent hover:cursor-pointer"
       style={{
         transform: `translateX(${currentX}px)`,
         backgroundColor: passedThreshold ? "skyblue" : "beige",
@@ -139,11 +137,7 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
   };
 
   const onTouchEnd = () => {
-    if (currentXRef.current > threshold) {
-      setPassedThreshold(true);
-    } else {
-      setPassedThreshold(false);
-    }
+    setPassedThreshold(currentXRef.current > threshold);
 
     window.removeEventListener("touchmove", onTouchMove);
     window.removeEventListener("mousemove", onTouchMove);
@@ -155,7 +149,7 @@ function DraggableInnerGood({ containerWidth }: { containerWidth: number }) {
     <div
       onTouchStart={onTouchStart}
       onMouseDown={onTouchStart}
-      className="h-14 w-14 rounded"
+      className="h-14 w-14 rounded border border-skin-accent hover:cursor-pointer"
       style={{
         transform: `translateX(${currentX}px)`,
         backgroundColor: passedThreshold ? "skyblue" : "beige",
