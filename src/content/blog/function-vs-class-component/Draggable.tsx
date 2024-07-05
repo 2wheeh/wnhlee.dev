@@ -93,7 +93,6 @@ function DraggableInner({ containerWidth }: { containerWidth: number }) {
 export function Draggable() {
   const [containerWidth, setContainerWidth] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const draggableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
