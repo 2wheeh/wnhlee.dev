@@ -93,9 +93,7 @@ export function Draggable() {
       ref={wrapperRef}
       className="h-fit w-full space-y-2 rounded border border-skin-accent p-2"
     >
-      {containerWidth > 0 && (
-        <DraggableInnerGood containerWidth={containerWidth} />
-      )}
+      {containerWidth > 0 && <DraggableInner containerWidth={containerWidth} />}
     </div>
   );
 }
