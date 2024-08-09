@@ -1,0 +1,212 @@
+---
+author: wonhee
+pubDatetime: 2024-08-01T16:32:16.000+09:00
+modDatetime:
+title: 프론트엔드 기술 면접 오답노트 1
+pinned: false
+# draft: true
+tags:
+  - interview
+  - bfs
+  - websocket
+  - canvas
+  - javascript
+  - garbage collection
+  - nodejs
+description: 자책은 그만하고 오답노트를 작성해보자.
+---
+
+## Table of Contents
+
+## Intro
+
+자책은 그만하고 오답노트를 작성해보자.
+
+## Canvas API vs img tag
+
+> `Canvas API`와 `img 태그` 어떻게 다른가요?
+
+1. 렌더링 방식: `Canvas API`는 어떤 그래픽을 그릴지 Application 수준에서 픽셀 단위로 조작하고, `img` 태그는 url에서, (혹은 파일시스템에서) 이미지를 가져와서 렌더링한다. 렌더링 로직은 브라우져 엔진이 담당한다.
+
+2. 파일 저장 및 사용성: `Canvas API`에서 그린 그래픽 이미지를 유저가 저장하기 위해서는 추가적인 로직을 구현해야한다.
+
+   예를들면, 저장 버튼의 클릭 이벤트 핸들러에서 `canvas.toDataURL()`, `canvas.toBlob()` 같은 메서드를 조작하는 방식이다.
+
+   반면 `img` 태그는 브라우저에서 저장 기능을 제공한다. 또한 `img` 태그는 `alt` 속성으로 대체 텍스트를 제공할 수 있어서 접근성이 더 뛰어나다.
+
+> 단순히 이미지를 표시하는 상황이라면 둘 중 성능은 뭐가 더 좋을까요?
+
+단순 이미지 표시의 경우에는 `img` 태그가 더 빠르고 효율적이다.
+
+`img`는 단지 이미지를 보여주기 위해 동작하고, 브라우저 엔진이 이미지를 바로 렌더링한다.
+
+반면, `Canvas API`는 `canvas` 엘리먼트를 DOM에 추가하고, 컨텍스트를 생성하고, 그림을 그리는 등의 추가적인 로직을 수행해야하기 때문이다.
+
+모던 브라우저들은 `img` 태그의 이미지를 렌더링할 떄, GPU 가속을 기본적으로 사용한다. `Canvas API`를 사용할 때도 GPU 가속을 사용할 수 있지만, 위에서 말한 것 처럼 자바스크립트 메인 스레드를 거쳐서 렌더링 로직을 실행해야하고 이는 브라우저 엔진이 렌더링을 최적화하는 `img` 태그에 비해 느릴 수 있다.
+
+## Websocket Protocol
+
+> Websocket 커넥션은 어떤 과정을 거쳐서 이루어지나요?
+
+클라이언트가 약속된 헤더가 포함된 HTTP GET 요청을 보내면서 시작된다.
+
+- `Upgrade: websocket`: WebSocket 프로토콜로 업그레이드 요청
+- `Connection: Upgrade`: 연결을 업그레이드하겠다는 의사 표시
+- `Sec-WebSocket-Key`: 무작위로 생성된 16바이트 값(Base64로 인코딩)
+- `Sec-WebSocket-Version`: 사용하려는 WebSocket 프로토콜 버전(보통 13)
+- `Sec-WebSocket-Protocol` (선택적): 사용하고자 하는 서브 프로토콜 명시
+
+예시:
+
+<Code
+  code={`GET /chat HTTP/1.1
+Host: server.example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13`}
+  lang="http"
+/>
+
+서버가 이 요청을 수락하면 다음과 같은 응답을 보낸다:
+
+- HTTP 상태 코드 101 (Switching Protocols)
+- `Upgrade: websocket`
+- `Connection: Upgrade`
+- `Sec-WebSocket-Accept`: 클라이언트가 보낸 `Sec-WebSocket-Key`를 기반으로 생성된 값
+
+예시:
+
+<Code
+  code={`HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=`}
+  lang="http"
+/>
+
+이 과정을 통해 해당 HTTP 연결이 WebSocket 연결로 업그레이드 되고, 양방향 통신이 가능해진다.
+
+자바스크립트의 클라이언트의 `fetch API`의 경우, HTTP 요청 시 클라이언트 객체를 노출하지 않는다.
+
+따라서, `fetch` API를 통해 WebSocket 연결을 열 수 없다. 대신 `WebSocket` 객체를 사용해야한다:
+
+<Code code={`// WebSocket 연결 생성
+const socket = new WebSocket('ws://example.com/socketserver');
+
+// 연결이 열렸을 때 실행되는 이벤트 핸들러
+socket.addEventListener('open', function (event) {
+console.log('WebSocket 연결이 열렸습니다.');
+
+    // 서버로 메시지 전송
+    socket.send('안녕하세요! 클라이언트에서 보낸 메시지입니다.');
+
+});
+
+// 메시지를 받았을 때 실행되는 이벤트 핸들러
+socket.addEventListener('message', function (event) {
+console.log('서버로부터 메시지를 받았습니다:', event.data);
+});
+
+// 에러가 발생했을 때 실행되는 이벤트 핸들러
+socket.addEventListener('error', function (event) {
+console.error('WebSocket 에러가 발생했습니다:', event);
+});
+
+// 연결이 닫혔을 때 실행되는 이벤트 핸들러
+socket.addEventListener('close', function (event) {
+console.log('WebSocket 연결이 닫혔습니다. 코드:', event.code, '이유:', event.reason);
+});
+
+// 연결 닫기 (필요할 때 호출)
+// socket.close();`} lang='js' />
+
+## BFS Time Complexity
+
+> BFS의 시간복잡도는 어떻게 되나요?
+
+간선수와 정점수에 선형적으로 비례한다:
+
+`O(V+E)`
+
+여기서 `V`(vertex)는 정점의 수, `E`(edge)는 간선의 수이다.
+
+`O(V)`는 정점을 방문하는 시간:
+
+- BFS는 모든 정점을 한 번씩 방문
+- 각 정점을 큐에서 뺌 -> `O(V)`
+
+`O(E)`는 간선을 탐색하는 시간:
+
+- 각 정점을 방문할 떄, 그 정점과 연결된 모든 간선을 탐색
+- 모든 간선은 한 번씩 탐색, 간선 수 만큼 큐에 추가 -> `O(E)`
+
+일반적으로 표현하는 `O(N)` 표기법으로 하자면, `N`이 정점의 수일 때:
+
+- 간선 수가 최소일 때 (i.e. 일반적인 트리 구조) - `O(N)`
+- 간선 수가 최대일 때 (i.e. 모든 정점끼리 서로 연결된 완전 그래프) - `O(N^2)`
+
+## JavaScript, Thread, Runtime
+
+> JavaScript는 싱글 스레드인가요?
+
+자바스크립트는 기본적으로 싱글 스레드 언어다. ECMA 스펙은 스레드 중립적으로 스레드에 대한 언급이 없고, 싱글 스레드 모델을 따른다. 따라서 언어 자체에는 멀티스레딩을 직접 제어하는 기능이 없다.
+
+하지만 자바스크립트 코드는 브라우저나 Node.js 같은 런타임 환경에서 실행되며, 이러한 런타임 환경이 멀티스레딩을 지원하는 API를 제공한다.
+
+예를 들어, 브라우저에서는 Web Worker API를 통해, Node.js에서는 Worker Threads API를 통해 멀티스레딩을 지원한다.
+
+또한, 네트워크 요청이나 파일 시스템 접근과 같은 I/O 작업들도 브라우저나 Node.js의 백그라운드 스레드에서 비동기적으로 처리되며, 일종의 멀티스레딩으로 볼 수 있다.
+
+> 서비스 워커에서 무거운 파일을 로드하다가 앱이 죽은 현상을 위의 개념들과 연관지어서 설명해보세요.
+
+서비스 워커는 브라우저의 백그라운드 스레드에서 동작하는 스크립트다. 즉, 같은 프로세스에서 동작하는 메인 스레드와 메모리 등의 리소스를 공유한다.
+
+따라서 서비스 워커의 스레드가 메모리 한계를 초과하게 되면 프로세스 전체가 죽게됩니다. 같은 프로세스에 존재하는 메인 스레드에서 동작하는 앱도 죽게 된다.
+
+## GC on JavaScript
+
+> 자바스크립트의 GC(Garbage Collection)에 대해 설명해보세요.
+
+자바스크립트에서는 사용하는 변수를 다음과 같은 방식으로 메모리에 할당한다:
+
+1. 원시(Primitive) 값: 숫자, 문자열같은 원시값들은 스택에 저장한다.
+2. 참조(Reference) 값: 객체, 배열, 함수 등은 힙에 저장하고, 스택에는 힙에 저장된 객체의 주소를 저장한다.
+
+스택에 저장된 변수들은 함수 호출이 끝나면서 스택에서 제거된다. 하지만 힙에 저장된 객체들은 더 이상 사용되지 않는 경우 직접 메모리에서 해제해주어야 한다.
+
+자바스크립트에서는 런타임 환경의 V8 엔진이 GC를 수행하여 더 이상 사용되지 않는 객체를 메모리에서 해제한다.
+
+> 순환참조 문제가 뭔가요? 어떻게 해결할 수 있나요?
+
+GC가 수거해갈 대상을 Reference Counting으로 추적하게 되면 발생할 수 있는 문제다.
+
+예를 들어, A 객체와 B 객체가 서로를 참조하지만 어디에서도 참조하지 않는 경우를 생각해보자.
+
+이 경우 Reference Counting 방식은 A와 B의 참조 카운트가 0이 되지 않아서 GC가 수거하지 못한다.
+
+실제로 IE6에서는 Reference Counting 방식을 사용했었는데, 이런 문제로 메모리 누수가 발생했다.
+
+모던 브라우저들은 이를 해결하기 위해서 `Mark-and-Sweep` 방식을 사용한다.
+
+`Mark-and-Sweep` 방식은 루트 객체에서 시작해서 도달 가능한 객체를 마킹하고 (`dfs`), 마킹되지 않은 객체를 수거하는 방식이다.
+
+> GC는 메인 스레드에서 동작하나요?
+
+JS에서 GC는 기본적으로는 메인 스레드에서 동작한다.
+
+하지만 백그라운드 스레드를 최대한 활용하는 방식으로 성능 최적화를 하고 있다.
+
+> GC가 동작하는 동안 앱이 멈추는 문제는 없나요?
+
+메인 스레드에서 GC가 동작하는 동안 앱이 멈추는 현상을 `stop-the-world` 라고 한다.
+
+모던브라우저들은 이를 해결하기 위해 백그라운드 스레드를 활용하는 방식으로 최적화를 하고 있다.
+
+V8에서는 `Orinoco` 라는 프로젝트로 GC가 동작하는 동안에도 앱이 멈추지 않도록 최적화를 하고 있다.
+
+## 그럼에도 불구하고
+
+복기를 하다보니, 조금 절망적인 기분이 든다.
+
+그러나 현명한 자는 실패를 딛고 일어서는 법. 아! 어찌 좌절하리오.
