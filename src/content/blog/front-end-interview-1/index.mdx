@@ -26,7 +26,7 @@ description: 자책은 그만하고 오답노트를 작성해보자.
 
 > `Canvas API`와 `img 태그` 어떻게 다른가요?
 
-1. 렌더링 방식: `Canvas API`는 어떤 그래픽을 그릴지 Application 수준에서 픽셀 단위로 조작하고, `img` 태그는 url에서, (혹은 파일시스템에서) 이미지를 가져와서 렌더링한다. 렌더링 로직은 브라우져 엔진이 담당한다.
+1. 렌더링 방식: `Canvas API`는 어떤 그래픽을 그릴지 Application 수준에서 픽셀 단위로 조작하고, `img` 태그는 url에서 (혹은 파일시스템에서) 이미지를 가져와서 렌더링한다. 렌더링 로직은 브라우져 엔진이 담당한다.
 
 2. 파일 저장 및 사용성: `Canvas API`에서 그린 그래픽 이미지를 유저가 저장하기 위해서는 추가적인 로직을 구현해야한다.
 
@@ -87,9 +87,17 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=`}
 
 이 과정을 통해 해당 HTTP 연결이 WebSocket 연결로 업그레이드 되고, 양방향 통신이 가능해진다.
 
-자바스크립트의 클라이언트의 `fetch API`의 경우, HTTP 요청 시 클라이언트 객체를 노출하지 않는다.
+업그레이드 후 클라이언트와 서버 간에 메시지를 자유롭게 주고 받을 수 있다.
 
-따라서, `fetch` API를 통해 WebSocket 연결을 열 수 없다. 대신 `WebSocket` 객체를 사용해야한다:
+하지만 브라우저의 `fetch API`의 경우, HTTP 연결에 사용된 소켓을 직접 조작하는 인터페이스를 제공하지 않는다.
+
+`fetch API`는 `client` 같은 이름의 객체를 노출하지 않고, HTTP 응답 결과에 대한 인터페이스만 제공한다.
+
+즉, `fetch API`로는 연결이 업그레이드 되더라도 해당 소켓을 통해 메시지를 주고 받을 방법이 없다.
+
+대신 WebSocket 연결을 위해서 브라우저가 제공하는 `WebSocket` 객체가 있다.
+
+`WebSocket` 객체를 생성하면 내부적으로 HTTP 연결을 업그레이드하는 과정을 수행하고, 이 객체를 통해 메시지를 주고 받을 수 있다:
 
 <Code code={`// WebSocket 연결 생성
 const socket = new WebSocket('ws://example.com/socketserver');
