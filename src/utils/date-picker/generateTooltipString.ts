@@ -1,4 +1,19 @@
-// string: "01-01" => "Janurary 1st"
+const generateDaySuffix = (day: string) => {
+  const lastDigit = day[day.length - 1];
+
+  switch (lastDigit) {
+    case "1":
+      return "st";
+    case "2":
+      return "nd";
+    case "3":
+      return "rd";
+    default:
+      return "th";
+  }
+};
+
+/* date "01-01" => "Janurary 1st" */
 export const generateTooltipString = (date: string) => {
   const [month, day] = date.split("-");
 
@@ -6,8 +21,7 @@ export const generateTooltipString = (date: string) => {
     month: "long",
   });
 
-  const suffix =
-    day === "01" ? "st" : day === "02" ? "nd" : day === "03" ? "rd" : "th";
+  const suffix = generateDaySuffix(day);
 
   return `${monthStr} ${parseInt(day)}${suffix}`;
 };
