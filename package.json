@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
+    "twoslash": "vocs twoslash",
     "build": "vocs build",
     "preview": "vocs preview"
   },

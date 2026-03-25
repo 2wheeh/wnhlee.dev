@@ -1,15 +1,15 @@
-import { defineConfig } from 'vocs'
+import { defineConfig } from 'vocs';
 
 export default defineConfig({
-  title: 'Docs',
-  sidebar: [
-    {
-      text: 'Getting Started',
-      link: '/getting-started',
+  title: 'wnhlee.dev',
+  description: 'personal blog by wnhlee',
+  twoslash: {
+    compilerOptions: {
+      strict: true,
+      jsx: 4, // JsxEmit.ReactJSX
+      jsxImportSource: 'react',
     },
-    {
-      text: 'Example',
-      link: '/example',
-    },
-  ],
-})
+  },
+  blogDir: './pages',
+  topNav: [{ text: 'Github', link: 'https://github.com/2wheeh' }],
+});
