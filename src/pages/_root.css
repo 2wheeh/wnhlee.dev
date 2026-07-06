@@ -1,0 +1,80 @@
+/* === Blog post listing ===
+ * Recreates the look of vocs v1's removed `::blog-posts` directive
+ * (BlogPosts + Authors components) using vocs v2 theme variables.
+ * Rendered by the `::blog-posts` directive in src/features/post/directives.ts.
+ */
+.vocs-blog-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+/* The whole post is a single <a>, so the entire card (whitespace included) is
+ * clickable and shows the pointer cursor — like vocs v1's RouterLink card. */
+.vocs-blog-post {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.vocs-blog-post-title {
+  margin: 0;
+  color: var(--vocs-text-color-heading);
+  font-size: var(--vocs-text-h2, 1.3rem);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.vocs-blog-post-meta {
+  margin-top: 0.5rem;
+  color: var(--vocs-text-color-muted);
+  font-size: 14px;
+}
+.vocs-blog-post-authors {
+  color: var(--vocs-text-color-primary);
+}
+.vocs-blog-post-description {
+  margin-top: 1rem;
+  color: var(--vocs-text-color-secondary, var(--vocs-text-color-primary));
+}
+.vocs-blog-post-readmore {
+  transition: color 0.2s;
+}
+.vocs-blog-post:hover .vocs-blog-post-readmore {
+  color: var(--vocs-color-accent);
+}
+.dark .vocs-blog-post:hover .vocs-blog-post-readmore {
+  color: var(--vocs-color-accent);
+}
+.vocs-blog-post-divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--vocs-border-color-primary);
+}
+
+/* === Post header byline ===
+ * Recreates vocs v1's `::authors` look (date + author link + divider).
+ * Rendered by the `::authors` directive in src/features/post/directives.ts.
+ */
+/* Like v1: the post title + byline share ONE bottom divider (with margin above
+ * and below). vocs draws its default underline on the h1; we move that role to
+ * the byline so the title and byline sit together above a single rule.
+ *   h1  (no underline, small gap to byline)
+ *   byline text
+ *   [padding-bottom]  ── divider ──  [margin-bottom]
+ *   content
+ */
+h1:has(+ .vocs-authors) {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.vocs-authors {
+  color: var(--vocs-text-color-muted);
+  font-size: 14px;
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--vocs-border-color-primary);
+}
+.vocs-authors a {
+  color: var(--vocs-text-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
